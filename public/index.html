@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" href="assets/css/index.css">
+
+
+    <title>RepoMan</title>
+</head>
+
+<body>
+    <!-- NavBar -->
+    <nav class="navbar navbar-expand-lg navbar-dark" style="background-color:#850a0a;">
+        <div class="container">
+            <a class="navbar-brand" href="/index">
+                <img src="assets/images/large-rm-logo.png" style="width: 140px; height:55px;" alt="Repoman" />
+            </a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav mr-auto">
+
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle text-white" href="#" id="navbarDropdown1" role="button"
+                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            About Us
+                        </a>
+                        <div class="dropdown-menu" aria-labelledby="navbarDropdown1">
+                            <a class="dropdown-item" href="/aboutRepoman">About Repoman.com</a>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item" href="/aboutUSAWeb">About USA Web</a>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item" href="/sitePolicy">Site Policy</a>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item" href="/contactUs">Contact us</a>
+                            <div class="dropdown-divider"></div>
+                        </div>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle text-white" href="#" id="navbarDropdown2" role="button"
+                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Advertising Info
+                        </a>
+                        <div class="dropdown-menu" aria-labelledby="navbarDropdown2">
+                            <a class="dropdown-item" href="/listingOptions">Listing Options</a>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item" href="/insurance">Insurance Requirements</a>
+                        </div>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="/vendors">Vendors</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-item navbar-brand ml-3" href="http://www.dynamicmfg.com/">
+                            <img src="assets/images/dyn_navthumb.gif" alt="Dynamic">
+                        </a>
+                    </li>
+                </ul>
+                <button type="button" class="btn" id="sign-in-button">
+                    <a class="nav-item nav-link text-white" href="/login">Register/Login</a>
+                </button>
+
+            </div>
+        </div>
+    </nav>
+    <!--Main Content-->
+    <div class="container mb-2">
+        <div class="jumbotron mt-3 mb-0" id="main-search-area">
+            <div class="row">
+                <div class="col-sm-8">
+                    <div class="card  shadow-lg p-3 mb-5 border-0 rounded" id="main-search-card">
+                        <div class="card-body">
+                            <form>
+                                <div class="form-group">
+                                    <label class="text-white" for="main-search-zip">Find a Repoman Near You</label>
+                                    <input type="zip-code" class="form-control" id="main-search-zip"
+                                        aria-describedby="emailHelp" placeholder="Search by Zip Code">
+                                </div>
+                                <div class="form-group">
+                                    <label class="text-white" for="search-range-input">Search Range</label>
+                                    <select class="form-control" id="search-range-input">
+                                        <option>10 miles</option>
+                                        <option>25 miles</option>
+                                        <option>50 miles</option>
+                                        <option>100 miles</option>
+                                        <option>250 miles</option>
+                                    </select>
+                                </div>
+
+                                <button type="submit" class="btn text-white" id="main-search-submit">Search</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-4">
+                    <div class="container">
+                        <div class="card main-sub-content border-0">
+                            <div class="card-body">
+                                <a href="/listingOptions">
+                                    <h5 class="text-white"><u>Add Your Company</u></h5>
+                                </a>
+                                <p class="text-white">Join 100s of other companies and get your company listed. There
+                                    are no contracts to sign and no memberships to join. FREE 30 Day Trial!</p>
+                                <a href="/listingOptions">
+                                    <button type="button" class="btn" id="add-company-button">Join Now!</button> </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <div class="card main-sub-content border-0">
+                        <img src="assets/images/repo-hq.png" class="card-img-top" alt="FB-image-link">
+                        <div class="card-body mt-0">
+                            <a href="https://www.facebook.com/groups/276989939438601/">
+                                <h5 class="text-white"><u>Check Out Repo HQ</u></h5>
+                            </a>
+                            <p class="card-text text-white">A private group for Repoman.com members and those in the
+                                repossession community to ask questions, share wisdom, and shoot the bull.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <div class="container">
+                        <div class="card main-sub-content border-0">
+                            <div class="card-body">
+                                <h5 class="text-white"><u>Repoman.com Companies</u></h5>
+                                <div id="carouselExampleSlidesOnly" class="carousel slide" data-ride="carousel">
+                                    <div class="carousel-inner">
+                                        <div class="carousel-item active">
+                                            <p class="text-white">If you need a Repo Man, repo company, or repossession,
+                                                Repoman.com is the repossession company directory to find one.</p>
+                                        </div>
+                                        <div class="carousel-item">
+                                            <p class="text-white">Car Repo / Boat Repo - Automobile Repossession / Car
+                                                Repossession - Asset Recovery - Car Auction - Recovery - Vehicle
+                                                Recovery - Skip Tracing - Collection Agency - Auctions - Vehicle
+                                                Transportation - Locksmithing - Auto Keys</p>
+                                        </div>
+                                        <div class="carousel-item">
+                                            <a href="/insurance">
+                                                <h6>Insurance Requirements</h6>
+                                            </a>
+                                            <p class="text-white">USAWeb.com clearly marks the listings of recovery
+                                                agencies that have submitted proof of insurance.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--AD Space-->
+    <div id="scroller" style="width: 1110px; height: 75px; margin: 0 auto;">
+        <div class="innerScrollArea">
+            <ul>
+                <!-- Define photos here -->
+                <li><img class="ad-img" src="./assets/images/sidebar/sm-allied.gif" /></li>
+                <li><img class="ad-img" src="./assets/images/sidebar/sm-baja.gif" /></li>
+                <li><img class="ad-img" src="./assets/images/sidebar/sm-bigtime.png" /></li>
+                <li><img class="ad-img" src="./assets/images/sidebar/sm-det.png" /></li>
+                <li><img class="ad-img" src="./assets/images/sidebar/sm-dyn.gif" /></li>
+                <li><img class="ad-img" src="./assets/images/sidebar/sm-ken.png" /></li>
+                <li><img class="ad-img" src="./assets/images/sidebar/sm-locating.png" /></li>
+                <li><img class="ad-img" src="./assets/images/sidebar/sm-minuteman.png" /></li>
+                <li><img class="ad-img" src="./assets/images/sidebar/sm-nams.jpeg" /></li>
+                <li><img class="ad-img" src="./assets/images/sidebar/sm-rec.png" /></li>
+                <li><img class="ad-img" src="./assets/images/sidebar/sm-recmng.gif" /></li>
+                <li><img class="ad-img" src="./assets/images/sidebar/sm-repfl.png" /></li>
+                <li><img class="ad-img" src="./assets/images/sidebar/sm-rsig.gif" /></li>
+            </ul>
+        </div>
+    </div>
+    <!--Search by State-->
+    <div class="container mb-3 mt-2">
+        <div class="card">
+            <div class="card-header">
+                <h4 id="search-by-state-header"> Search By State</h4>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-sm-4">
+                        <ul style="list-style-type:none;">
+                            <li class="state-href"><a href="/state/AL" class="state-link">Alabama</a></li>
+                            <li class="state-href"><a href="/state/AK" class="state-link">Alaska</a></li>
+                            <li class="state-href"><a href="/state/AR" class="state-link">Arkansas</a></li>
+                            <li class="state-href"><a href="/state/AZ" class="state-link">Arizona</a></li>
+                            <li class="state-href"><a href="/state/CA" class="state-link">California</a></li>
+                            <li class="state-href"><a href="/state/CO" class="state-link">Colorado</a></li>
+                            <li class="state-href"><a href="/state/CT" class="state-link">Connecticut</a></li>
+                            <li class="state-href"><a href="/state/DE" class="state-link">Delaware</a></li>
+                            <li class="state-href"><a href="/state/FL" class="state-link">Florida</a></li>
+                            <li class="state-href"><a href="/state/GA" class="state-link">Georgia</a></li>
+                            <li class="state-href"><a href="/state/HI" class="state-link">Hawaii</a></li>
+                            <li class="state-href"><a href="/state/ID" class="state-link">Idaho</a></li>
+                            <li class="state-href"><a href="/state/IL" class="state-link">Illinois</a></li>
+                            <li class="state-href"><a href="/state/IN" class="state-link">Indiana</a></li>
+                            <li class="state-href"><a href="/state/IA" class="state-link">Iowa</a></li>
+                            <li class="state-href"><a href="/state/KS" class="state-link">Kansas</a></li>
+                            <li class="state-href"><a href="/state/KY" class="state-link">Kentucky</a></li>
+
+
+                        </ul>
+                    </div>
+                    <div class="col-sm-4">
+                        <ul style="list-style-type:none;">
+
+                            <li class="state-href"><a href="/state/LA" class="state-link">Louisiana</a></li>
+                            <li class="state-href"><a href="/state/ME" class="state-link">Maine</a></li>
+                            <li class="state-href"><a href="/state/MD" class="state-link">Maryland</a></li>
+                            <li class="state-href"><a href="/state/MA" class="state-link">Massachusetts</a></li>
+                            <li class="state-href"><a href="/state/MI" class="state-link">Michigan</a></li>
+                            <li class="state-href"><a href="/state/MN" class="state-link">Minnesota</a></li>
+                            <li class="state-href"><a href="/state/MS" class="state-link">Mississippi</a></li>
+                            <li class="state-href"><a href="/state/MO" class="state-link">Missouri</a></li>
+                            <li class="state-href"><a href="/state/MT" class="state-link">Montana</a></li>
+                            <li class="state-href"><a href="/state/NE" class="state-link">Nebraska</a></li>
+                            <li class="state-href"><a href="/state/NV" class="state-link">Nevada</a></li>
+                            <li class="state-href"><a href="/state/NH" class="state-link">New Hampshire</a></li>
+                            <li class="state-href"><a href="/state/NJ" class="state-link">New Jersey</a></li>
+                            <li class="state-href"><a href="/state/NM" class="state-link">New Mexico</a></li>
+                            <li class="state-href"><a href="/state/NY" class="state-link">New York</a></li>
+                            <li class="state-href"><a href="/state/NC" class="state-link">North Carolina</a></li>
+                            <li class="state-href"><a href="/state/ND" class="state-link">North Dakota</a></li>
+
+
+                        </ul>
+                    </div>
+                    <div class="col-sm-4">
+                        <ul style="list-style-type:none;">
+                            <li class="state-href"><a href="/state/OH" class="state-link">Ohio</a></li>
+                            <li class="state-href"><a href="/state/OK" class="state-link">Oklahoma</a></li>
+
+                            <li class="state-href"><a href="/state/OR" class="state-link">Oregon</a></li>
+                            <li class="state-href"><a href="/state/PA" class="state-link">Pennsylvania</a></li>
+                            <li class="state-href"><a href="/state/RI" class="state-link">Rhode Island</a></li>
+                            <li class="state-href"><a href="/state/SC" class="state-link">South Carolina</a></li>
+                            <li class="state-href"><a href="/state/SD" class="state-link">South Dakota</a></li>
+                            <li class="state-href"><a href="/state/TN" class="state-link">Tennessee</a></li>
+                            <li class="state-href"><a href="/state/TX" class="state-link">Texas</a></li>
+                            <li class="state-href"><a href="/state/UT" class="state-link">Utah</a></li>
+                            <li class="state-href"><a href="/state/VT" class="state-link">Vermont</a></li>
+                            <li class="state-href"><a href="/state/VA" class="state-link">Virginia</a></li>
+                            <li class="state-href"><a href="/state/WA" class="state-link">Washington</a></li>
+                            <li class="state-href"><a href="/state/WV" class="state-link">West Virginia</a></li>
+                            <li class="state-href"><a href="/state/WI" class="state-link">Wisconsin</a></li>
+                            <li class="state-href"><a href="/state/WY" class="state-link">Wyoming</a></li>
+
+
+                        </ul>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div id="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-2">
+                    <div class="footer-div">
+                        <ul class="footer-list" style="list-style-type:none">
+
+                            <a href="/sitePolicy">
+                                <li class="footer-text">Privacy Policy</li>
+                            </a>
+
+                            <a href="/account">
+                                <li class="footer-text">Your Account
+                                </li>
+                            </a>
+                            <a href="/aboutUSAWeb">
+                                <li class="footer-text">About USA Web
+                                </li>
+                            </a>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-sm-2">
+                    <div class="footer-div">
+                        <ul class="footer-list" style="list-style-type:none">
+                            <a href="/payment">
+                                <li class="footer-text">Payment
+                                </li>
+                            </a>
+                            <a href="/contactUs">
+                                <li class="footer-text">Contact Us
+                                </li>
+                            </a>
+                            <a href="/refund">
+                                <li class="footer-text">Refund Policy
+                                </li>
+                            </a>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-sm-3"></div>
+                <div class="col-sm-4">
+
+                    <img id="footer-img" src="assets/images/large-rm-logo.png" alt="RepoMan.com">
+
+                </div>
+            </div>
+            <hr>
+
+
+
+            <div class="row">
+                <div class="col-sm-8"></div>
+                <div class="col-sm-4">
+                    <p class="footer-text">Copyright © USAWeb 1995-2019</p>
+                </div>
+            </div>
+        </div>
+
+
+
+
+
+
+
+    </div>
+
+
+    <script src="https://code.jquery.com/jquery-3.4.1.js"
+        integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+        integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+        crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+        crossorigin="anonymous"></script>
+    <script src="./assets/js/index.js"></script>
+
+
+
+</body>
+
+</html>
