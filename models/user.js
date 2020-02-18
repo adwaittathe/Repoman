@@ -3,6 +3,10 @@ var Sequelize = require("sequelize");
 var db = require("../config/connection");
 
 var User = db.define('User', {
+    id : {
+    type: Sequelize.STRING,
+    primaryKey: true
+    },
     firstName: Sequelize.STRING,
     lastName: Sequelize.STRING,
     email:Sequelize.STRING,
