@@ -120,16 +120,16 @@ $(document).ready(function() {
         "<a style ='text-decoration:none' class='card-title' href='/company/" +
           companyID +
           "'><h4>" +
-          data[i].companyName +
+          data[i]["Company Name"] +
           "</h4></a>"
       );
       $("#company" + i).append(
-        "<p class='card-text'>Address: " + data[i].address + "</p>"
+        "<p class='card-text'>Address: " + data[i].Address + "</p>"
       );
-      $("#company" + i).append("<p>States: " + data[i].state + "</p>");
-      $("#company" + i).append("<p>Phone: " + data[i].phoneNumber + "</p>");
+      $("#company" + i).append("<p>States: " + data[i].State + "</p>");
+      $("#company" + i).append("<p>Phone: " + data[i]["Phone Number"] + "</p>");
       $("company").css({ padding: "4%" });
-      var listingData = data[i].listingLevel;
+      var listingData = data[i]["Listing Level"];
       var listing = listingData.substr(10, 500);
       console.log(listing);
       //conditional checking listing level to display correct listings

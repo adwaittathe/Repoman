@@ -9,8 +9,10 @@ var Sequelize = require("sequelize");
 var bodyParser = require("body-parser");
 var morgan = require("morgan");
 var app = express();
+var blobUtil = require("blob-util");
 var flash = require("connect-flash");
 var port = process.env.PORT || 8080;
+var readBlob = require("read-blob");
 var path = require("path");
 const fetch = require("node-fetch");
 //var popup = require('popups');
@@ -54,26 +56,45 @@ app.post("/zip", async function(req, response) {
     req.body.mileSearch +
     "/miles";
 
-  //var response = await fetch(url);
-  //const data = await response.json();
-  //console.log(data);
-  //const zipArray = data.zip_codes;
-  var zipList = [];
+  // var urlVal = await fetch(url);
+  // const data = await urlVal.json();
+
+  // const zipArray = data.zip_codes;
+  // var zipList = [];
   // for (var i = 0; i < zipArray.length; i++) {
   //   var obj = zipArray[i];
   //   zipList.push(obj.zip_code);
   // }
-  zipList.push(28262);
-  zipList.push(29707);
-  zipList.push(29716);
+  // zipList.push(35244);
+  // zipList.push(29707);
+  // zipList.push(29716);
+  // zipList.push(36302);
+  // zipList.push(35124);
+  // zipList.push(35238);
+
+  var Op = Sequelize.Op;
+
   db.sync()
     .then(function() {
-      return companyModel.findAll({});
+      return companyModel.findAll({
+        where: {
+          Zip: {
+            [Op.in]: ["35244", "35124"]
+          }
+        }
+      });
     })
-    .then(function(req, res) {
+    .then(function(res, err) {
       if (res) {
-        console.log("RESPONSE");
-        console.log(res);
+        var obj = JSON.stringify(res);
+        var d = JSON.parse(obj);
+        console.log(d);
+        var bufferBase64 = new Buffer(d[0].companyImg.data, "binary").toString(
+          "base64"
+        );
+        var url = "data:image/jpeg;" + bufferBase64;
+        console.log(bufferBase64);
+        response.render("zipDisplay", { zipData: d, url: url });
       }
     });
 });
