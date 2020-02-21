@@ -133,19 +133,33 @@
             </a>
 
             <div class="card-body">
-              <p class="card-text"><b>Name</b> : <%= zipData[i]['Name'] %></p>
-              <p class="card-text">
-                <b>Address </b> : <%= zipData[i]['Address'] %>
-              </p>
-              <p class="card-text"><b>Zipcode</b> : <%= zipData[i]['Zip'] %></p>
-              <p class="card-text"><b>State</b> : <%= zipData[i]['State'] %></p>
-
-              <p class="card-text">
-                <b>Listing Level</b> : <%= zipData[i]['Listing Level'] %>
-              </p>
-              <p class="card-text">
-                <b>Phone No</b> : <%= zipData[i]['Phone Number'] %>
-              </p>
+              <div class="row">
+                <div class="col-sm-8">
+                  <p class="card-text">
+                    <b>Name</b> : <%= zipData[i]['Name'] %>
+                  </p>
+                  <p class="card-text">
+                    <b>Address </b> : <%= zipData[i]['Address'] %>
+                  </p>
+                  <p class="card-text">
+                    <b>Zipcode</b> : <%= zipData[i]['Zip'] %>
+                  </p>
+                  <p class="card-text">
+                    <b>State</b> : <%= zipData[i]['State'] %>
+                  </p>
+                  <p class="card-text">
+                    <b>Phone No</b> : <%= zipData[i]['Phone Number'] %>
+                  </p>
+                  <p class="card-text">
+                    <b>Listing Level</b> : <%= zipData[i]['Listing Level'] %>
+                  </p>
+                </div>
+                <div class="col-sm-4">
+                  <% if(zipData[i].img){ %>
+                  <img src="<%= zipData[i].img %>" />
+                  <% } %>
+                </div>
+              </div>
             </div>
           </div>
           <br />

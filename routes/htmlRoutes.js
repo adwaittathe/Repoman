@@ -63,6 +63,18 @@ module.exports = function(app) {
       },
       order: [["Listing Level", "DESC"]]
     }).then(result => {
+      for (var i = 0; i < result.length; i++) {
+        if (result[i].companyImg) {
+          var bufferBase64 = new Buffer(
+            result[i].companyImg,
+            "binary"
+          ).toString("base64");
+          var url = "data:image/jpeg;base64," + bufferBase64;
+          if (bufferBase64) {
+            result[i].img = url;
+          }
+        }
+      }
       console.log(result);
       //res.json(result);
       res.render("stateSearch", { zipData: result });

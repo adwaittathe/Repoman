@@ -56,15 +56,15 @@ app.post("/zip", async function(req, response) {
     req.body.mileSearch +
     "/miles";
 
-  // var urlVal = await fetch(url);
-  // const data = await urlVal.json();
+  var urlVal = await fetch(url);
+  const data = await urlVal.json();
 
-  // const zipArray = data.zip_codes;
-  // var zipList = [];
-  // for (var i = 0; i < zipArray.length; i++) {
-  //   var obj = zipArray[i];
-  //   zipList.push(obj.zip_code);
-  // }
+  const zipArray = data.zip_codes;
+  var zipList = [];
+  for (var i = 0; i < zipArray.length; i++) {
+    var obj = zipArray[i];
+    zipList.push(obj.zip_code);
+  }
   // zipList.push(35244);
   // zipList.push(29707);
   // zipList.push(29716);
@@ -79,22 +79,27 @@ app.post("/zip", async function(req, response) {
       return companyModel.findAll({
         where: {
           Zip: {
-            [Op.in]: ["35244", "35124"]
+            [Op.in]: zipList
           }
-        }
+        },
+        order: [["Listing Level", "DESC"]]
       });
     })
     .then(function(res, err) {
       if (res) {
         var obj = JSON.stringify(res);
         var d = JSON.parse(obj);
-        console.log(d);
-        var bufferBase64 = new Buffer(d[0].companyImg.data, "binary").toString(
-          "base64"
-        );
-        var url = "data:image/jpeg;" + bufferBase64;
-        console.log(bufferBase64);
-        response.render("zipDisplay", { zipData: d, url: url });
+        for (var i = 0; i < d.length; i++) {
+          if (d[i].companyImg.data.length > 0) {
+            var bufferBase64 = new Buffer(
+              d[i].companyImg.data,
+              "binary"
+            ).toString("base64");
+            var url = "data:image/jpeg;base64," + bufferBase64;
+            d[i].img = url;
+          }
+        }
+        response.render("zipDisplay", { zipData: d });
       }
     });
 });
@@ -126,11 +131,9 @@ app.post("/login", function(req, response) {
           sess.email = res.email;
           sess.userId = res.id;
           response.sendFile(path.join(__dirname, "./public/customer.html"));
-          //console.log(JSON.stringify(user));
         }
       } else {
         response.render("login", { error: "Please enter a valid email" });
-        //console.log("NO USER");
       }
     });
 });

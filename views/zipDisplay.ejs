@@ -116,31 +116,54 @@
       <div class="row">
         <!-- Content  -->
         <div class="col">
-          <% for (var i=0; i< zipData.length; i++) { %>
+          <% for (var i=0; i< zipData.length; i++) { var obj = "grey";
+          if(zipData[i]['Listing Level'].includes("Basic")) { obj = "#D3D3D3"; }
+          if(zipData[i]['Listing Level'].includes("Multi-Media")) { obj = "red";
+          } if(zipData[i]['Listing Level'].includes("Enhanced Annual") ||
+          zipData[i]['Listing Level'].includes("Enhanced Quarterly") ) { obj =
+          "firebrick"; } %>
 
           <div class="card">
-            <h5 id="company" class="card-header">
+            <h5
+              id="company"
+              class="card-header"
+              style="background-color:<%= obj %>; color: black;"
+            >
               <%= zipData[i]['Company Name'] %>
             </h5>
+
             <div class="card-body">
-              <p class="card-text"><b>Name</b> : <%= zipData[i]['Name'] %></p>
-              <p class="card-text">
-                <b>Address </b> : <%= zipData[i]['Address'] %>
-              </p>
-              <p class="card-text">
-                <b>Username</b> : <%= zipData[i]['Username'] %>
-              </p>
-              <p class="card-text"><b>Zipcode</b> : <%= zipData[i]['Zip'] %></p>
-              <p class="card-text"><b>State</b> : <%= zipData[i]['State'] %></p>
-              <p class="card-text">
-                <b>Last Paid</b> : <%= zipData[i]['Last Paid'] %>
-              </p>
-              <p class="card-text">
-                <b>Listing Level</b> : <%= zipData[i]['Listing Level'] %>
-              </p>
-              <p class="card-text">
-                <b>Phone No</b> : <%= zipData[i]['Phone Number'] %>
-              </p>
+              <div class="row">
+                <div class="col-sm-8">
+                  <p class="card-text">
+                    <b>Name</b> : <%= zipData[i]['Name'] %>
+                  </p>
+                  <p class="card-text">
+                    <b>Address </b> : <%= zipData[i]['Address'] %>
+                  </p>
+                  <p class="card-text">
+                    <b>Zipcode</b> : <%= zipData[i]['Zip'] %>
+                  </p>
+                  <p class="card-text">
+                    <b>State</b> : <%= zipData[i]['State'] %>
+                  </p>
+                  <p class="card-text">
+                    <b>Last Paid</b> : <%= zipData[i]['Last Paid'] %>
+                  </p>
+                  <p class="card-text">
+                    <b>Phone No</b> : <%= zipData[i]['Phone Number'] %>
+                  </p>
+                  <p class="card-text">
+                    <b>Listing Level</b> : <%= zipData[i]['Listing Level'] %>
+                  </p>
+                </div>
+                <div class="col-sm-4">
+                  <% if(zipData[i].img){ %>
+                  <img src="<%= zipData[i].img %>" />
+
+                  <% } %>
+                </div>
+              </div>
             </div>
           </div>
           <br />
