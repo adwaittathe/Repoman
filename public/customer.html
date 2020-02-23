@@ -101,10 +101,11 @@
                             </div>
                         </form><br>
                         <form action="/upload" method="post" enctype="multipart/form-data">
-                            <input type="file" accept="image/jpeg, image/png" name="photo" >
-                            <input type="submit" value="Upload">
+                            <input type="file" accept="image/jpeg, image/png" name="photo">
+                            <input type="submit" value="Upload" class="btn btn-primary">
                         </form>
-                        <a href="/update">Update</a>
+                        <br>
+                        <a href="/update" class="btn btn-primary">Update</a>
                         <br><br>
                         <form action="https://www.sandbox.paypal.com/cgi-bin/webscr" method="post" target="_top">
                             <input type="hidden" name="cmd" value="_s-xclick">

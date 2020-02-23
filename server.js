@@ -130,7 +130,15 @@ app.post("/login", function(req, response) {
           var sess = req.session;
           sess.email = res.email;
           sess.userId = res.id;
-          response.sendFile(path.join(__dirname, "./public/customer.html"));
+          var obj = {
+            id: res.id,
+            firstName: res.firstName,
+            lastName: res.lastName,
+            email: res.email,
+            company: res.company
+          };
+          response.render("customer", { userObj: obj });
+          //response.sendFile(path.join(__dirname, "./public/customer.html"));
         }
       } else {
         response.render("login", { error: "Please enter a valid email" });
@@ -138,8 +146,21 @@ app.post("/login", function(req, response) {
     });
 });
 
-app.post("/register", function(req, res) {
-  console.log(req.body);
+function validation(pass1, pass2) {
+  if (pass1 == pass2) {
+    return true;
+  } else {
+    return false;
+  }
+}
+app.post("/register", function(req, response) {
+  if (!validation(req.body.password, req.body.confirmpassword)) {
+    response.render("register", {
+      userObj: req.body,
+      error: "Password and Confirm password should be same"
+    });
+    return;
+  }
   db.sync()
     .then(function() {
       return userModel.create({
@@ -150,12 +171,58 @@ app.post("/register", function(req, res) {
         company: req.body.company
       });
     })
-    .then(function(jane) {
-      console.log(
-        jane.get({
-          plain: true
+    .then(function(userCreateResult, error) {
+      console.log("----------USER___RESULT_____________");
+      if (error) {
+        console.log("Error");
+        console.log(error);
+      }
+      if (userCreateResult) {
+        console.log(userCreateResult);
+      }
+
+      db.sync()
+        .then(function() {
+          return companyModel.create({
+            State: req.body.state,
+            "Company Name": req.body.company,
+            "Phone Number": req.body.phoneNo,
+            Address:
+              req.body.address1 +
+              " " +
+              req.body.address2 +
+              " " +
+              req.body.state +
+              " " +
+              req.body.zip,
+            Name: req.body.firstName + " " + req.body.lastName,
+            Username: req.body.email,
+            Zip: req.body.zip
+          });
         })
-      );
+        .then(function(result, error) {
+          if (result) {
+            console.log("----------_RESULT_____________");
+            console.log(result);
+            var sess = req.session;
+            sess.email = req.body.email;
+            sess.userId = userCreateResult.id;
+            console.log("SESSION");
+            console.log(sess.userId);
+            console.log(userCreateResult.id);
+            console.log(sess);
+            var obj = {
+              firstName: req.body.firstName,
+              lastName: req.body.lastName,
+              email: req.body.email,
+              company: req.body.company
+            };
+            response.render("customer", { userObj: obj });
+          }
+          if (error) {
+            console.log(error);
+          }
+        });
     });
 });
 
@@ -167,7 +234,7 @@ app.get("/update", function(req, response) {
     .then(function() {
       return userModel.findOne({
         where: {
-          id: sess.userId
+          id: sess.email
         }
       });
     })
@@ -189,11 +256,7 @@ app.get("/update", function(req, response) {
 
 app.post("/update", function(req, response) {
   var sess = req.session;
-  console.log("IN UPDATE");
-  console.log(sess.userId);
-  console.log(JSON.stringify(req.body));
-  console.log(req.body.firstName);
-  const userId = parseInt(sess.userId);
+
   userModel
     .update(
       {
@@ -202,11 +265,28 @@ app.post("/update", function(req, response) {
         email: req.body.email,
         company: req.body.company
       },
-      { where: { id: userId } }
+      { where: { email: sess.email } }
     )
     .then(result => {
       console.log("Details updated successfully");
-      console.log(result);
+      companyModel
+        .update(
+          {
+            "Company Name": req.body.company,
+            Name: req.body.firstName + " " + req.body.lastName,
+            Username: req.body.email
+          },
+          { where: { Username: sess.email } }
+        )
+        .then(res => {
+          var obj = {
+            firstName: req.body.firstName,
+            lastName: req.body.lastName,
+            email: req.body.email,
+            company: req.body.company
+          };
+          response.render("customer", { userObj: obj });
+        });
     })
     .catch(err => {
       console.log("update failed");

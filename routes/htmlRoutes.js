@@ -42,7 +42,11 @@ module.exports = function(app) {
     //res.sendFile(path.join(__dirname, "../public/login.html"))
   });
   app.get("/register", function(req, res) {
-    res.sendFile(path.join(__dirname, "../public/register.html"));
+    //res.sendFile(path.join(__dirname, "../public/register.html"));
+    res.render("register", {
+      userObj: {},
+      error: ""
+    });
   });
   app.get("/customer", function(req, res) {
     res.sendFile(path.join(__dirname, "../public/customer.html"));
