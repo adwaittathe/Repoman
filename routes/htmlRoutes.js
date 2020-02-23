@@ -36,6 +36,9 @@ module.exports = function(app) {
   app.get("/refund", function(req, res) {
     res.sendFile(path.join(__dirname, "../public/refund.html"));
   });
+  app.get("/vendors", function(req, res) {
+    res.sendFile(path.join(__dirname, "../public/vendors.html"));
+  });
 
   app.get("/login", function(req, res) {
     res.render("login", { error: "" });
