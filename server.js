@@ -15,6 +15,8 @@ var port = process.env.PORT || 8080;
 var readBlob = require("read-blob");
 var path = require("path");
 const fetch = require("node-fetch");
+const bcrypt = require("bcryptjs");
+
 //var popup = require('popups');
 const cor = {
   latitude: 13.555,
@@ -114,7 +116,7 @@ app.post("/login", function(req, response) {
         }
       });
     })
-    .then(function(res, err) {
+    .then(async function(res, err) {
       if (res) {
         var user = new userModel({
           id: res.id,
@@ -124,8 +126,13 @@ app.post("/login", function(req, response) {
           password: res.password,
           company: res.company
         });
-        if (user.password != req.body.password) {
+        const validatePass = await bcrypt.compare(
+          req.body.password,
+          user.password
+        );
+        if (!validatePass) {
           response.render("login", { error: "Please enter a valid password" });
+          return;
         } else {
           var sess = req.session;
           sess.email = res.email;
@@ -153,7 +160,7 @@ function validation(pass1, pass2) {
     return false;
   }
 }
-app.post("/register", function(req, response) {
+app.post("/register", async function(req, response) {
   if (!validation(req.body.password, req.body.confirmpassword)) {
     response.render("register", {
       userObj: req.body,
@@ -161,13 +168,15 @@ app.post("/register", function(req, response) {
     });
     return;
   }
+  const salt = await bcrypt.genSalt(10);
+  const hashPass = await bcrypt.hash(req.body.password, salt);
   db.sync()
     .then(function() {
       return userModel.create({
         firstName: req.body.firstName,
         lastName: req.body.lastName,
         email: req.body.email,
-        password: req.body.password,
+        password: hashPass,
         company: req.body.company
       });
     })
@@ -234,7 +243,7 @@ app.get("/update", function(req, response) {
     .then(function() {
       return userModel.findOne({
         where: {
-          id: sess.email
+          email: sess.email
         }
       });
     })
@@ -285,6 +294,7 @@ app.post("/update", function(req, response) {
             email: req.body.email,
             company: req.body.company
           };
+          sess.email = req.body.email;
           response.render("customer", { userObj: obj });
         });
     })
@@ -296,9 +306,8 @@ app.post("/update", function(req, response) {
 
 app.listen(8012);
 
-// db.sequelize.sync({ force: false }).then(function() {
 app.listen(port, function() {
   console.log("App listening on PORT: " + port);
 });
-// })
+
 module.exports = app;
