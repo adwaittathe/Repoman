@@ -57,6 +57,14 @@ module.exports = function(app) {
   app.get("/customer", function(req, res) {
     res.sendFile(path.join(__dirname, "../public/passwordReset.html"));
   });
+
+  function Base64ToURL(dataImg) {
+    var bufferBase64 = new Buffer(dataImg, "binary").toString("base64");
+    var url = "data:image/jpeg;base64," + bufferBase64;
+    if (bufferBase64) {
+      return url;
+    }
+  }
   app.get("/state/:state", function(req, res) {
     var stateVal = req.params.state.toUpperCase();
     console.log("STATE");
@@ -71,16 +79,15 @@ module.exports = function(app) {
       order: [["Listing Level", "DESC"]]
     }).then(result => {
       for (var i = 0; i < result.length; i++) {
-        if (result[i].companyImg) {
-          var bufferBase64 = new Buffer(
-            result[i].companyImg,
-            "binary"
-          ).toString("base64");
-          var url = "data:image/jpeg;base64," + bufferBase64;
-          if (bufferBase64) {
-            result[i].img = url;
-          }
-        }
+        result[i].companyImgUrl = Base64ToURL(result[i].companyImg);
+        result[i].insuredImg1Url = Base64ToURL(result[i].insuredImg1);
+        result[i].insuredImg2Url = Base64ToURL(result[i].insuredImg2);
+        result[i].insuredImg3Url = Base64ToURL(result[i].insuredImg3);
+        result[i].insuredImg4Url = Base64ToURL(result[i].insuredImg4);
+        result[i].insuredImg5Url = Base64ToURL(result[i].insuredImg5);
+        result[i].insuredImg6Url = Base64ToURL(result[i].insuredImg6);
+        result[i].insuredImg7Url = Base64ToURL(result[i].insuredImg7);
+        result[i].insuredImg8Url = Base64ToURL(result[i].insuredImg8);
       }
       console.log(result);
       //res.json(result);

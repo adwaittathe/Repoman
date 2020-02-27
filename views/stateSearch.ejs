@@ -152,13 +152,61 @@
                   </p>
                 </div>
                 <div class="col-sm-4">
-                  <% if(zipData[i].img){ %>
+                  <% if(zipData[i].companyImgUrl){ %>
                   <img
-                    src="<%= zipData[i].img %>"
-                    style="height: 180px; width: 180px;"
+                    src="<%= zipData[i].companyImgUrl %>"
+                    style="height: 150px; width: 150px;"
                   />
                   <% } %>
                 </div>
+              </div>
+              <br />
+              <% if(zipData[i].isInsured == 1){ %>
+              <div class="row">
+                <img
+                  src="/assets/images/isInsured.png"
+                  style="height: 60px; width: 230px;"
+                />
+              </div>
+              <br />
+              <% } %>
+              <div class="row">
+                &nbsp;&nbsp; <% if(zipData[i].insuredImg1Url){ %>
+                <img
+                  src="<%= zipData[i].insuredImg1Url %>"
+                  style="height: 50px; width: 110px;"
+                />
+                &nbsp;&nbsp; <% } %> <% if(zipData[i].insuredImg2Url){ %>
+                <img
+                  src="<%= zipData[i].insuredImg2Url %>"
+                  style="height: 50px; width: 110px;"
+                />
+                <% } %> <% if(zipData[i].insuredImg3Url){ %> &nbsp;&nbsp;
+                <img
+                  src="<%= zipData[i].insuredImg3Url %>"
+                  style="height: 50px; width: 110px;"
+                />
+                <% } %> <% if(zipData[i].insuredImg4Url){ %>&nbsp;&nbsp;
+                <img
+                  src="<%= zipData[i].insuredImg4Url %>"
+                  style="height: 50px; width: 110px;"
+                />
+                <% } %> <% if(zipData[i].insuredImg5Url){ %>&nbsp;&nbsp;
+                <img
+                  src="<%= zipData[i].insuredImg5Url %>"
+                  style="height: 50px; width: 110px;"
+                />
+                <% } %> <% if(zipData[i].insuredImg6Url){ %>&nbsp;&nbsp;
+                <img
+                  src="<%= zipData[i].insuredImg6Url %>"
+                  style="height: 50px; width: 110px;"
+                />
+                <% } %> <% if(zipData[i].insuredImg7Url){ %>&nbsp;&nbsp;
+                <img
+                  src="<%= zipData[i].insuredImg7Url %>"
+                  style="height: 50px; width: 110px;"
+                />
+                <% } %>
               </div>
             </div>
           </div>
