@@ -263,6 +263,21 @@ app.get("/update", function(req, response) {
     });
 });
 
+app.get("/admin", function(req, res) {
+  companyModel
+    .findAll({
+      raw: true,
+      where: {
+        isApproved: 0
+      },
+      order: [["Listing Level", "DESC"]]
+    })
+    .then(result => {
+      console.log(result);
+      res.render("admin", { data: result });
+    });
+});
+
 app.post("/update", function(req, response) {
   var sess = req.session;
 
@@ -304,7 +319,7 @@ app.post("/update", function(req, response) {
     });
 });
 
-app.listen(8012);
+app.listen(80);
 
 app.listen(port, function() {
   console.log("App listening on PORT: " + port);
