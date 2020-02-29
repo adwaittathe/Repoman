@@ -4,19 +4,57 @@ var userModel = require("./models/user.js");
 var companyModel = require("./models/company.js");
 var db = require("./config/connection");
 var session = require("express-session");
-var cookieParser = require("cookie-parser");
 var Sequelize = require("sequelize");
-var bodyParser = require("body-parser");
-var morgan = require("morgan");
+
 var app = express();
-var blobUtil = require("blob-util");
+
 var flash = require("connect-flash");
 var port = process.env.PORT || 8080;
-var readBlob = require("read-blob");
-var path = require("path");
+
 const fetch = require("node-fetch");
 const bcrypt = require("bcryptjs");
+const AWS = require("aws-sdk");
+const dotenv = require("dotenv");
+const fs = require("fs");
 
+dotenv.config();
+
+//console.log(process.env.KeyId);
+//console.log(process.env.AccessKey);
+const s3 = new AWS.S3({
+  accessKeyId: process.env.KeyId,
+  secretAccessKey: process.env.AccessKey
+});
+const BUCKET_NAME = "repomanbucket";
+
+const uploadFile = fileName => {
+  // Read content from the file
+  const fileContent = fs.readFileSync(fileName);
+
+  console.log("IN Upload");
+  //console.log(fileContent);
+  //console.log(s3);
+  // Setting up S3 upload parameters
+  const params = {
+    Bucket: BUCKET_NAME,
+    Key: "james/cat.jpg", // File name you want to save as in S3
+    Body: fileContent
+  };
+
+  // Uploading files to the bucket
+  s3.upload(params, function(err, data) {
+    if (err) {
+      console.log("ERROR");
+      console.log(err);
+      throw err;
+    }
+    console.log(`File uploaded successfully. ${data.Location}`);
+  });
+};
+
+// uploadFile(
+//   "/Users/adwaittathe/Desktop/LWScreenShot 2020-02-22 at 7.11.10 PM.png"
+// );
 //var popup = require('popups');
 const cor = {
   latitude: 13.555,
@@ -262,6 +300,22 @@ app.get("/update", function(req, response) {
       }
     });
 });
+app.post("/updateComp", function(req, res) {
+  var companyId = req.body.id;
+  console.log("ID");
+  console.log(companyId);
+  companyModel
+    .findOne({
+      raw: true,
+      where: {
+        id: companyId
+      }
+    })
+    .then(result => {
+      console.log(result);
+      res.render("updateCompany", { userObj: result });
+    });
+});
 
 app.get("/admin", function(req, res) {
   companyModel
@@ -273,7 +327,7 @@ app.get("/admin", function(req, res) {
       order: [["Listing Level", "DESC"]]
     })
     .then(result => {
-      console.log(result);
+      //console.log(result);
       res.render("admin", { data: result });
     });
 });
