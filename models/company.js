@@ -6,36 +6,23 @@ var Repoman = sequelize.define(
   {
     id: {
       type: Sequelize.INTEGER,
-      primaryKey: true
+      primaryKey: true,
+      autoIncrement: true
     },
     State: Sequelize.STRING,
+    Country: Sequelize.STRING,
+    Website: Sequelize.STRING,
     "Company Name": Sequelize.STRING,
     "Phone Number": Sequelize.STRING,
-    Address: Sequelize.STRING,
-    Name: Sequelize.STRING,
-    Username: Sequelize.STRING,
+    "Fax Number": Sequelize.STRING,
+    Description: Sequelize.STRING,
+    Address1: Sequelize.STRING,
+    Address2: Sequelize.STRING,
+    userId: Sequelize.INTEGER,
     "Last Paid": Sequelize.STRING,
     "Listing Level": Sequelize.STRING,
     Zip: Sequelize.STRING,
-    companyImg: Sequelize.BLOB,
-    isInsured: Sequelize.INTEGER,
-    insuredImg1: Sequelize.BLOB,
-    insuredImg2: Sequelize.BLOB,
-    insuredImg3: Sequelize.BLOB,
-    insuredImg4: Sequelize.BLOB,
-    insuredImg5: Sequelize.BLOB,
-    insuredImg6: Sequelize.BLOB,
-    insuredImg7: Sequelize.BLOB,
-    insuredImg8: Sequelize.BLOB,
-    insuredImg9: Sequelize.BLOB,
-    insuredImg10: Sequelize.BLOB,
-    insuredImg11: Sequelize.BLOB,
-    insuredImg12: Sequelize.BLOB,
-    insuredImg13: Sequelize.BLOB,
-    insuredImg14: Sequelize.BLOB,
-    insuredImg15: Sequelize.BLOB,
-    areaMap: Sequelize.BLOB,
-    infoPack: Sequelize.BLOB
+    isApproved: Sequelize.INTEGER
   },
 
   {

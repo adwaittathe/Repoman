@@ -4,14 +4,13 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-    <link rel="app/json" href="payment.json" />
     <link
       rel="stylesheet"
       href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
       integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
       crossorigin="anonymous"
     />
-    <link rel="stylesheet" href="./assets/css/index.css" />
+    <link rel="stylesheet" href="assets/css/index.css" />
 
     <title>RepoMan</title>
   </head>
@@ -113,166 +112,284 @@
       </div>
     </nav>
     <!-- Main Content -->
-    <div class="container">
-      <div class="jumbotron">
-        <form id="form" action="/updateComp" method="POST">
-          <div class="form-group">
-            <label for="company">Company</label>
-            <input
-              type="text"
-              class="form-control"
-              id="company"
-              name="company"
-              placeholder="Company"
-              value="<%= userObj['Company Name'] %>"
-              required
-            />
-          </div>
-          <div class="form-group">
-            <label for="website">Website</label>
-            <input
-              type="text"
-              class="form-control"
-              name="website"
-              id="website"
-              value="<%= userObj.website %>"
-              placeholder="Website"
-              required
-            />
-          </div>
-          <div class="form-group">
-            <label for="email">Address</label>
-            <input
-              type="text"
-              class="form-control"
-              id="address"
-              name="address1"
-              value="<%= userObj.Address %>"
-              placeholder="1234 Main St"
-              required
-            />
-          </div>
-
-          <div class="form-row">
-            <div class="form-group col-md-6">
-              <label for="country">Country</label>
-              <select
-                id="country"
-                name="country"
-                class="form-control"
-                value="United States of America"
-              ></select>
-            </div>
-            <div class="form-group col-md-4">
-              <label for="state">State</label>
-              <select
-                id="state"
-                name="state"
-                value="<%= userObj.State %>"
-                class="form-control"
-              ></select>
-            </div>
-            <script type="text/javascript" src="countries.js"></script>
-            <script language="javascript">
-              populateCountries("country", "state"); // first parameter is id of country drop-down and second parameter is id of state drop-down
-              populateCountries("country2");
-              populateCountries("country2");
-            </script>
-            <div class="form-group col-md-2">
-              <label for="zip">Zip</label>
-              <input
-                type="number"
-                class="form-control"
-                id="zip"
-                name="zip"
-                value="<%= userObj.Zip %>"
-                placeholder="Zip code"
-              />
-            </div>
-          </div>
-          <div class="form-row">
-            <div class="form-group col-md-6">
-              <label for="phone">Phone No</label>
-              <input
-                type="number"
-                class="form-control"
-                id="phone"
-                name="phoneNo"
-                value="<%= userObj['Phone Number'] %>"
-                placeholder="Phone Number"
-              />
-            </div>
-            <div class="form-group col-md-6">
-              <label for="fax">Fax No</label>
-              <input
-                type="number"
-                class="form-control"
-                id="fax"
-                name="faxNo"
-                value="<%= userObj['Fax Number'] %>"
-                placeholder="Fax Number"
-              />
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label for="description">Company Description</label>
-            <textarea
-              class="form-control"
-              id="companyDesc"
-              placeholder="Company Description"
-              rows="3"
-              value="<%= userObj.companyDesc %>"
-              name="companyDesc"
-            ></textarea>
-          </div>
-        </form>
-
+    <div class="container mt-2">
+      <div class="row">
         <!-- Content  -->
-      </div>
-    </div>
-    <!-- Ad Space -->
-    <div id="scroller" style="width: 1110px; height: 75px; margin: 0 auto;">
-      <div class="innerScrollArea">
-        <ul>
-          <!-- Define photos here -->
-          <li>
-            <img class="ad-img" src="assets/images/sidebar/sm-allied.gif" />
-          </li>
-          <li>
-            <img class="ad-img" src="assets/images/sidebar/sm-baja.gif" />
-          </li>
-          <li>
-            <img class="ad-img" src="assets/images/sidebar/sm-bigtime.png" />
-          </li>
-          <li><img class="ad-img" src="assets/images/sidebar/sm-det.png" /></li>
-          <li><img class="ad-img" src="assets/images/sidebar/sm-dyn.gif" /></li>
-          <li><img class="ad-img" src="assets/images/sidebar/sm-ken.png" /></li>
-          <li>
-            <img class="ad-img" src="assets/images/sidebar/sm-locating.png" />
-          </li>
-          <li>
-            <img class="ad-img" src="assets/images/sidebar/sm-minuteman.png" />
-          </li>
-          <li>
-            <img class="ad-img" src="assets/images/sidebar/sm-nams.jpeg" />
-          </li>
-          <li><img class="ad-img" src="assets/images/sidebar/sm-rec.png" /></li>
-          <li>
-            <img class="ad-img" src="assets/images/sidebar/sm-recmng.gif" />
-          </li>
-          <li>
-            <img class="ad-img" src="assets/images/sidebar/sm-repfl.png" />
-          </li>
-          <li>
-            <img class="ad-img" src="assets/images/sidebar/sm-rsig.gif" />
-          </li>
-        </ul>
-      </div>
-    </div>
+        <div class="col">
+          <div class="card border-0 bg-transparent">
+            <div class="card-body m-1 rounded" id="main-content-area">
+              <div id="register">
+                <h3 class="text-dark text-left">Register Company</h3>
+                <br />
 
+                <form action="/approveCompany" method="post">
+                  <% if(error!=''){ %>
+                  <div class="alert alert-danger" role="alert">
+                    <%=error%>
+                  </div>
+                  <%}%>
+
+                  <div class="form-group">
+                    <label for="company">Company Name</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="company"
+                      name="company"
+                      placeholder="Company"
+                      value="<%=userObj['Company Name']%>"
+                      required
+                    />
+                  </div>
+                  <div class="form-group">
+                    <label for="website">Website</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      name="website"
+                      id="website"
+                      value="<%=userObj.Website%>"
+                      placeholder="Website"
+                      required
+                    />
+                  </div>
+                  <div class="form-group">
+                    <label for="email">Address</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="address"
+                      name="address1"
+                      value="<%=userObj.Address1%>"
+                      placeholder="1234 Main St"
+                      required
+                    />
+                  </div>
+                  <div class="form-group">
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="address2"
+                      name="address2"
+                      value="<%=userObj.Address2%>"
+                      placeholder="Apartment, studio, or floor"
+                      required
+                    />
+                  </div>
+
+                  <div class="form-row">
+                    <div class="form-group col-md-6">
+                      <label for="country">Country</label>
+                      <select
+                        id="country"
+                        name="country"
+                        class="form-control"
+                        value="<%=userObj.Country%>"
+                      >
+                        <option value="USA">United States of America</option>
+                      </select>
+                    </div>
+                    <div class="form-group col-md-4">
+                      <label for="state">State</label>
+                      <select
+                        class="form-control"
+                        id="state"
+                        name="state"
+                        value="<%= userObj.State %>"
+                      >
+                        <option value="Select State">Select State</option>
+                        <option value="AL">Alabama</option>
+                        <option value="AK">Alaska</option>
+                        <option value="AZ">Arizona</option>
+                        <option value="AR">Arkansas</option>
+                        <option value="CA">California</option>
+                        <option value="CO">Colorado</option>
+                        <option value="CT">Connecticut</option>
+                        <option value="DE">Delaware</option>
+                        <option value="DC">District Of Columbia</option>
+                        <option value="FL">Florida</option>
+                        <option value="GA">Georgia</option>
+                        <option value="HI">Hawaii</option>
+                        <option value="ID">Idaho</option>
+                        <option value="IL">Illinois</option>
+                        <option value="IN">Indiana</option>
+                        <option value="IA">Iowa</option>
+                        <option value="KS">Kansas</option>
+                        <option value="KY">Kentucky</option>
+                        <option value="LA">Louisiana</option>
+                        <option value="ME">Maine</option>
+                        <option value="MD">Maryland</option>
+                        <option value="MA">Massachusetts</option>
+                        <option value="MI">Michigan</option>
+                        <option value="MN">Minnesota</option>
+                        <option value="MS">Mississippi</option>
+                        <option value="MO">Missouri</option>
+                        <option value="MT">Montana</option>
+                        <option value="NE">Nebraska</option>
+                        <option value="NV">Nevada</option>
+                        <option value="NH">New Hampshire</option>
+                        <option value="NJ">New Jersey</option>
+                        <option value="NM">New Mexico</option>
+                        <option value="NY">New York</option>
+                        <option value="NC">North Carolina</option>
+                        <option value="ND">North Dakota</option>
+                        <option value="OH">Ohio</option>
+                        <option value="OK">Oklahoma</option>
+                        <option value="OR">Oregon</option>
+                        <option value="PA">Pennsylvania</option>
+                        <option value="RI">Rhode Island</option>
+                        <option value="SC">South Carolina</option>
+                        <option value="SD">South Dakota</option>
+                        <option value="TN">Tennessee</option>
+                        <option value="TX">Texas</option>
+                        <option value="UT">Utah</option>
+                        <option value="VT">Vermont</option>
+                        <option value="VA">Virginia</option>
+                        <option value="WA">Washington</option>
+                        <option value="WV">West Virginia</option>
+                        <option value="WI">Wisconsin</option>
+                        <option value="WY">Wyoming</option>
+                      </select>
+                    </div>
+                    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+                    <script type="text/javascript">
+                      $(document).ready(() => {
+                        $("#state").val("<%= userObj.State %>");
+                      });
+                    </script>
+                    <div class="form-group col-md-2">
+                      <label for="zip">Zip</label>
+                      <input
+                        type="number"
+                        class="form-control"
+                        id="zip"
+                        name="zip"
+                        value="<%=userObj.Zip%>"
+                        placeholder="Zip code"
+                      />
+                    </div>
+                  </div>
+
+                  <div class="form-row">
+                    <div class="form-group col-md-6">
+                      <label for="phone">Phone No</label>
+                      <input
+                        type="number"
+                        class="form-control"
+                        id="phone"
+                        name="phoneNo"
+                        value="<%=userObj['Phone Number']%>"
+                        placeholder="Phone Number"
+                      />
+                    </div>
+                    <div class="form-group col-md-6">
+                      <label for="fax">Fax No</label>
+                      <input
+                        type="number"
+                        class="form-control"
+                        id="fax"
+                        name="faxNo"
+                        value="<%=userObj['Fax Number']%>"
+                        placeholder="Fax Number"
+                      />
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="description">Company Description</label>
+                    <textarea
+                      class="form-control"
+                      id="companyDesc"
+                      rows="3"
+                      name="companyDesc"
+                    >
+<%= userObj.Description %></textarea
+                    >
+                  </div>
+
+                  <input
+                    type="hidden"
+                    name="companyId"
+                    value="<%= userObj.id %>"
+                  />
+                  <div class="form-group">
+                    <div class="form-check">
+                      <input
+                        class="form-check-input"
+                        type="checkbox"
+                        id="approve"
+                        name="approve"
+                      />
+                      <label class="form-check-label" for="approve">
+                        Approve
+                      </label>
+                    </div>
+                  </div>
+                  <button type="submit" class="btn btn-primary">
+                    Update
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Ad Space -->
+        <div class="co-sm-3">
+          <div id="vertical-ad-space">
+            <img
+              class="vertical-ad-img"
+              src="assets/images/sidebar/sm-baja.gif"
+            />
+            <img
+              class="vertical-ad-img"
+              src="assets/images/sidebar/sm-bigtime.png"
+            />
+            <img
+              class="vertical-ad-img"
+              src="assets/images/sidebar/sm-det.png"
+            />
+            <img
+              class="vertical-ad-img"
+              src="assets/images/sidebar/sm-allied.gif"
+            />
+            <img
+              class="vertical-ad-img"
+              src="assets/images/sidebar/sm-ken.png"
+            />
+            <img
+              class="vertical-ad-img"
+              src="assets/images/sidebar/sm-locating.png"
+            />
+            <img
+              class="vertical-ad-img"
+              src="assets/images/sidebar/sm-minuteman.png"
+            />
+            <img
+              class="vertical-ad-img"
+              src="assets/images/sidebar/sm-nams.jpeg"
+            />
+            <img
+              class="vertical-ad-img"
+              src="assets/images/sidebar/sm-rec.png"
+            />
+            <img
+              class="vertical-ad-img"
+              src="assets/images/sidebar/sm-recmng.gif"
+            />
+            <img
+              class="vertical-ad-img"
+              src="assets/images/sidebar/sm-repfl.png"
+            />
+            <img
+              class="vertical-ad-img"
+              src="assets/images/sidebar/sm-rsig.gif"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
     <!-- Footer -->
-    <div id="footer" class="mt-2">
+    <div id="footer">
       <div class="container">
         <div class="row">
           <div class="col-sm-2">
@@ -325,9 +442,10 @@
         </div>
       </div>
     </div>
+
     <script
-      src="https://code.jquery.com/jquery-3.4.1.js"
-      integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU="
+      src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+      integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
       crossorigin="anonymous"
     ></script>
     <script
@@ -340,16 +458,5 @@
       integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
       crossorigin="anonymous"
     ></script>
-    <script src="assets/js/index.js"></script>
-
-    <!-- Load the required checkout.js script -->
-    <script
-      src="https://www.paypalobjects.com/api/checkout.js"
-      data-version-4
-    ></script>
-
-    <!-- Load the required Braintree components. -->
-    <script src="https://js.braintreegateway.com/web/3.39.0/js/client.min.js"></script>
-    <script src="https://js.braintreegateway.com/web/3.39.0/js/paypal-checkout.min.js"></script>
   </body>
 </html>

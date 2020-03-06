@@ -5,12 +5,11 @@ var companyModel = require("./models/company.js");
 var db = require("./config/connection");
 var session = require("express-session");
 var Sequelize = require("sequelize");
-
 var app = express();
-
+const formidable = require("formidable");
 var flash = require("connect-flash");
 var port = process.env.PORT || 8080;
-
+const multer = require("multer");
 const fetch = require("node-fetch");
 const bcrypt = require("bcryptjs");
 const AWS = require("aws-sdk");
@@ -19,101 +18,45 @@ const fs = require("fs");
 
 dotenv.config();
 
-//console.log(process.env.KeyId);
-//console.log(process.env.AccessKey);
 const s3 = new AWS.S3({
   accessKeyId: process.env.KeyId,
   secretAccessKey: process.env.AccessKey
 });
-const BUCKET_NAME = "repomanbucket";
+const BUCKET_NAME = "repoman-data";
 
-const uploadFile = fileName => {
-  // Read content from the file
-  const fileContent = fs.readFileSync(fileName);
-
-  console.log("IN Upload");
-  //console.log(fileContent);
-  //console.log(s3);
-  // Setting up S3 upload parameters
-  const params = {
-    Bucket: BUCKET_NAME,
-    Key: "james/cat.jpg", // File name you want to save as in S3
-    Body: fileContent
-  };
-
-  // Uploading files to the bucket
-  s3.upload(params, function(err, data) {
-    if (err) {
-      console.log("ERROR");
-      console.log(err);
-      throw err;
-    }
-    console.log(`File uploaded successfully. ${data.Location}`);
-  });
-};
-
-// uploadFile(
-//   "/Users/adwaittathe/Desktop/LWScreenShot 2020-02-22 at 7.11.10 PM.png"
-// );
-//var popup = require('popups');
-const cor = {
-  latitude: 13.555,
-  logitude: 100.33
-};
-
-//Possibly missing middleware for Passport but update to Express is causing an issue
 app.use(express.urlencoded({ extended: false }));
-
 app.use(express.json());
 app.use(express.static(__dirname + "/public"));
 app.set("view engine", "ejs");
 
-// required for passport
 app.use(
   session({
     secret: "repomaisthepassphrase",
     resave: true,
     saveUninitialized: true
   })
-); // session secret
-//app.use(passport.initialize());
-//app.use(passport.session()); // persistent login sessions
-app.use(flash()); // use connect-flash for flash messages stored in session
-// var User = sequelize.define('User', {
-//   username: Sequelize.STRING,
-//   lastname: Sequelize.STRING,
-// });
+);
+app.use(flash());
 
 require("./routes/htmlRoutes.js")(app);
 require("./routes/apiRoutes.js")(app);
 
 app.post("/zip", async function(req, response) {
-  console.log(req.body);
   var url =
     "https://www.zipcodeapi.com/rest/CIkJigsGbUqnlUGDkGHrddrqhBofshJNxp1Xf3xXPGWxfFmBEruccI2tMKs7HGb6/radius.json/" +
     req.body.zipCode +
     "/" +
     req.body.mileSearch +
     "/miles";
-
   var urlVal = await fetch(url);
   const data = await urlVal.json();
-
   const zipArray = data.zip_codes;
   var zipList = [];
   for (var i = 0; i < zipArray.length; i++) {
     var obj = zipArray[i];
     zipList.push(obj.zip_code);
   }
-  // zipList.push(35244);
-  // zipList.push(29707);
-  // zipList.push(29716);
-  // zipList.push(36302);
-  // zipList.push(35124);
-  // zipList.push(35238);
-
   var Op = Sequelize.Op;
-
   db.sync()
     .then(function() {
       return companyModel.findAll({
@@ -144,6 +87,122 @@ app.post("/zip", async function(req, response) {
     });
 });
 
+app.post("/upload", (req, res) => {
+  new formidable.IncomingForm().parse(req).on("file", (name, file) => {
+    uploadFile(file.path);
+  });
+});
+
+app.get("/addCompany", (req, res) => {
+  var sess = req.session;
+  res.render("addCompany", { userObj: {}, error: "" });
+});
+
+app.post("/addCompany", (req, res) => {
+  var sess = req.session;
+  console.log(req.body);
+  db.sync()
+    .then(function() {
+      return companyModel.create({
+        State: req.body.state,
+        Country: req.body.country,
+        "Company Name": req.body.company,
+        "Phone Number": req.body.phoneNo,
+        Address1: req.body.address1,
+        Address2: req.body.address2,
+        userId: sess.userId,
+        Website: req.body.website,
+        Description: req.body.companyDesc,
+        "Fax Number": req.body.faxNo,
+        Zip: req.body.zip,
+        isApproved: 0
+      });
+    })
+    .then(function(result, error) {
+      if (result) {
+        res.render("customer", { userObj: {} });
+      }
+      if (error) {
+        console.log(error);
+      }
+    });
+});
+
+app.post("/addInsurance", (req, res) => {
+  console.log(req.body);
+  var path = null;
+  var filename = null;
+  var id = null;
+  var st = null;
+  new formidable.IncomingForm()
+    .parse(req)
+    .on("file", (name, file) => {
+      //uploadFile(file.path);
+      path = file.path;
+      filename = file.name;
+    })
+    .on("field", (name, field) => {
+      console.log(name, field);
+      if (name == "id") {
+        id = field;
+      }
+      if (name == "stateVal") {
+        st = field;
+      }
+    })
+    .on("end", () => {
+      var url = id + "/insuranceImages/" + filename;
+      uploadFile(path, url);
+      res.redirect("/state/" + st);
+    });
+});
+
+app.post("/addMap", (req, res) => {
+  console.log(req.body);
+  var path = null;
+  var filename = null;
+  var id = null;
+  var st = null;
+  new formidable.IncomingForm()
+    .parse(req)
+    .on("file", (name, file) => {
+      //uploadFile(file.path);
+      path = file.path;
+      filename = file.name;
+    })
+    .on("field", (name, field) => {
+      console.log(name, field);
+      if (name == "id") {
+        id = field;
+      }
+      if (name == "stateVal") {
+        st = field;
+      }
+    })
+    .on("end", () => {
+      var url = id + "/companyInfo/" + filename;
+      uploadFile(path, url);
+      res.redirect("/state/" + st);
+    });
+});
+
+const uploadFile = (fileName, key) => {
+  const fileContent = fs.readFileSync(fileName);
+  const params = {
+    Bucket: BUCKET_NAME,
+    Key: key,
+    Body: fileContent
+  };
+  s3.upload(params, function(err, data) {
+    if (err) {
+      console.log("ERROR");
+      console.log(err);
+      throw err;
+    }
+    console.log(`File uploaded successfully. ${data.Location}`);
+  });
+};
+
 app.post("/login", function(req, response) {
   console.log(req.body);
   db.sync()
@@ -161,8 +220,7 @@ app.post("/login", function(req, response) {
           firstName: res.firstName,
           lastName: res.lastName,
           email: res.email,
-          password: res.password,
-          company: res.company
+          password: res.password
         });
         const validatePass = await bcrypt.compare(
           req.body.password,
@@ -179,11 +237,9 @@ app.post("/login", function(req, response) {
             id: res.id,
             firstName: res.firstName,
             lastName: res.lastName,
-            email: res.email,
-            company: res.company
+            email: res.email
           };
           response.render("customer", { userObj: obj });
-          //response.sendFile(path.join(__dirname, "./public/customer.html"));
         }
       } else {
         response.render("login", { error: "Please enter a valid email" });
@@ -214,69 +270,33 @@ app.post("/register", async function(req, response) {
         firstName: req.body.firstName,
         lastName: req.body.lastName,
         email: req.body.email,
-        password: hashPass,
-        company: req.body.company
+        password: hashPass
       });
     })
     .then(function(userCreateResult, error) {
-      console.log("----------USER___RESULT_____________");
       if (error) {
         console.log("Error");
         console.log(error);
       }
       if (userCreateResult) {
-        console.log(userCreateResult);
+        //console.log(userCreateResult);
+        var sess = req.session;
+        sess.email = userCreateResult.email;
+        sess.userId = userCreateResult.id;
+        var obj = {
+          id: userCreateResult.id,
+          firstName: userCreateResult.firstName,
+          lastName: userCreateResult.lastName,
+          email: userCreateResult.email
+        };
+        console.log(obj);
+        response.render("customer", { userObj: obj });
       }
-
-      db.sync()
-        .then(function() {
-          return companyModel.create({
-            State: req.body.state,
-            "Company Name": req.body.company,
-            "Phone Number": req.body.phoneNo,
-            Address:
-              req.body.address1 +
-              " " +
-              req.body.address2 +
-              " " +
-              req.body.state +
-              " " +
-              req.body.zip,
-            Name: req.body.firstName + " " + req.body.lastName,
-            Username: req.body.email,
-            Zip: req.body.zip
-          });
-        })
-        .then(function(result, error) {
-          if (result) {
-            console.log("----------_RESULT_____________");
-            console.log(result);
-            var sess = req.session;
-            sess.email = req.body.email;
-            sess.userId = userCreateResult.id;
-            console.log("SESSION");
-            console.log(sess.userId);
-            console.log(userCreateResult.id);
-            console.log(sess);
-            var obj = {
-              firstName: req.body.firstName,
-              lastName: req.body.lastName,
-              email: req.body.email,
-              company: req.body.company
-            };
-            response.render("customer", { userObj: obj });
-          }
-          if (error) {
-            console.log(error);
-          }
-        });
     });
 });
 
 app.get("/update", function(req, response) {
   var sess = req.session;
-  console.log("IN UPDATE");
-  console.log(sess.userId);
   db.sync()
     .then(function() {
       return userModel.findOne({
@@ -295,15 +315,12 @@ app.get("/update", function(req, response) {
           password: res.password,
           company: res.company
         });
-        console.log(JSON.stringify(user));
         response.render("update", { userObj: user });
       }
     });
 });
 app.post("/updateComp", function(req, res) {
   var companyId = req.body.id;
-  console.log("ID");
-  console.log(companyId);
   companyModel
     .findOne({
       raw: true,
@@ -313,7 +330,40 @@ app.post("/updateComp", function(req, res) {
     })
     .then(result => {
       console.log(result);
-      res.render("updateCompany", { userObj: result });
+      res.render("updateCompany", { userObj: result, error: "" });
+    });
+});
+
+app.post("/approveCompany", function(req, res) {
+  console.log(req.body);
+  var approve = 0;
+  if (req.body.approve) {
+    approve = 1;
+  }
+  companyModel
+    .update(
+      {
+        State: req.body.state,
+        "Company Name": req.body.company,
+        "Phone Number": req.body.phoneNo,
+        Address1: req.body.address1,
+        Address2: req.body.address2,
+        Zip: req.body.zip,
+        State: req.body.state,
+        Country: req.body.country,
+        Website: req.body.website,
+        "Fax Number": req.body.faxNo,
+        Description: req.body.companyDesc,
+        isApproved: approve
+      },
+      { where: { id: req.body.companyId } }
+    )
+    .then(result => {
+      console.log(result);
+    })
+    .catch(err => {
+      console.log("update failed");
+      console.log(err);
     });
 });
 
@@ -327,7 +377,6 @@ app.get("/admin", function(req, res) {
       order: [["Listing Level", "DESC"]]
     })
     .then(result => {
-      //console.log(result);
       res.render("admin", { data: result });
     });
 });

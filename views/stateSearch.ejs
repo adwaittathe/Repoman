@@ -136,10 +136,8 @@
               <div class="row">
                 <div class="col-sm-8">
                   <p class="card-text">
-                    <b>Name</b> : <%= zipData[i]['Name'] %>
-                  </p>
-                  <p class="card-text">
-                    <b>Address </b> : <%= zipData[i]['Address'] %>
+                    <b>Address </b> : <%= zipData[i]['Address1'] %> <%=
+                    zipData[i]['Address2'] %>
                   </p>
                   <p class="card-text">
                     <b>Zipcode</b> : <%= zipData[i]['Zip'] %>
@@ -161,6 +159,59 @@
                 </div>
               </div>
               <br />
+              <div class="row">
+                &nbsp; &nbsp;
+                <form
+                  id="formInsurance<%= i %>"
+                  action="/addInsurance"
+                  enctype="multipart/form-data"
+                  method="POST"
+                >
+                  <input
+                    type="file"
+                    name="file"
+                    accept="image/jpeg, image/png"
+                  />
+                  <input
+                    name="id"
+                    type="hidden"
+                    value="<%= zipData[i]['id'] %>"
+                  />
+                  <input
+                    name="stateVal"
+                    type="hidden"
+                    value="<%= stateVal %>"
+                  />
+                  <button type="submit" class="btn-primary">
+                    Add
+                  </button>
+                </form>
+              </div>
+              <div class="row">
+                &nbsp; &nbsp;
+                <form
+                  id="formMap<%= i %>"
+                  action="/addMap"
+                  enctype="multipart/form-data"
+                  method="POST"
+                >
+                  <input type="file" name="file" />
+                  <input
+                    name="id"
+                    type="hidden"
+                    value="<%= zipData[i]['id'] %>"
+                  />
+                  <input
+                    name="stateVal"
+                    type="hidden"
+                    value="<%= stateVal %>"
+                  />
+                  <button type="submit" class="btn-primary">
+                    Add
+                  </button>
+                </form>
+              </div>
+              <br />
               <% if(zipData[i].isInsured == 1){ %>
               <div class="row">
                 <img
@@ -169,8 +220,20 @@
                 />
               </div>
               <br />
+
               <% } %>
+
               <div class="row">
+                <% for(var k=0; k< zipData[i]['URLList'].length; k++) { %>
+
+                <img
+                  src="<%= zipData[i]['URLList'][k] %>"
+                  style="height: 50px; width: 110px;"
+                />
+                &nbsp;&nbsp; <% } %>
+              </div>
+
+              <!-- <div class="row">
                 &nbsp;&nbsp; <% if(zipData[i].insuredImg1Url){ %>
                 <img
                   src="<%= zipData[i].insuredImg1Url %>"
@@ -207,7 +270,7 @@
                   style="height: 50px; width: 110px;"
                 />
                 <% } %>
-              </div>
+              </div> -->
             </div>
           </div>
           <br />

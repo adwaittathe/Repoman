@@ -1,7 +1,5 @@
 var Repoman = require("../models/company.js");
 var Sequelize = require("sequelize");
-const passport = require("passport"),
-  LocalStrategy = require("passport-local").Strategy;
 module.exports = function(app) {
   app.get("/api/all", function(req, res) {
     Repoman.findAll({ raw: true }).then(function(result) {
