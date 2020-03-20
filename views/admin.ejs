@@ -115,6 +115,12 @@
     <!-- Main Content -->
     <div class="container">
       <div class="jumbotron">
+        <br />
+        <br />
+        <% if(newList.length > 0) { %>
+
+        <h5 class="text-center">Companies needs to be approved</h5>
+        <br />
         <table class="table">
           <thead>
             <th>Company Name</th>
@@ -123,15 +129,19 @@
             <th>Action</th>
           </thead>
           <tbody>
-            <% for(var i=0;i < data.length ; i++){ %>
+            <% for(var i=0;i < newList.length ; i++){ %>
 
             <tr>
-              <td><%= data[i]["Company Name"] %></td>
-              <td><%= data[i]["State"] %></td>
-              <td><%= data[i]["Zip"] %></td>
+              <td><%= newList[i]["Company Name"] %></td>
+              <td><%= newList[i]["State"] %></td>
+              <td><%= newList[i]["Zip"] %></td>
               <form id="form" method="POST" action="/updateComp">
                 <td>
-                  <input type="hidden" name="id" value="<%= data[i]['id'] %>" />
+                  <input
+                    type="hidden"
+                    name="id"
+                    value="<%= newList[i]['id'] %>"
+                  />
                   <button type="submit" class="btn-primary">View</button>
                 </td>
               </form>
@@ -140,44 +150,52 @@
             <% } %>
           </tbody>
         </table>
+        <br />
+        <% } %> <% if(oldList.length > 0) { %>
+        <h5 class="text-center">Approved Companies</h5>
+        <br />
+        <table class="table">
+          <thead>
+            <th>Company Name</th>
+            <th>State</th>
+            <th>Zip</th>
+            <th>Action</th>
+          </thead>
+          <tbody>
+            <% for(var i=0;i < oldList.length ; i++){ %>
+
+            <tr>
+              <td><%= oldList[i]["Company Name"] %></td>
+              <td><%= oldList[i]["State"] %></td>
+              <td><%= oldList[i]["Zip"] %></td>
+              <form id="form" method="POST" action="/updateComp">
+                <td>
+                  <input
+                    type="hidden"
+                    name="id"
+                    value="<%= oldList[i]['id'] %>"
+                  />
+                  <button type="submit" class="btn-primary">View</button>
+                </td>
+              </form>
+            </tr>
+
+            <% } %>
+          </tbody>
+        </table>
+        <% } %>
       </div>
     </div>
     <!-- Ad Space -->
     <div id="scroller" style="width: 1110px; height: 75px; margin: 0 auto;">
       <div class="innerScrollArea">
         <ul>
-          <!-- Define photos here -->
+          <% for(var i=0; i< SideBarImagesList.length; i++) { %>
           <li>
-            <img class="ad-img" src="assets/images/sidebar/sm-allied.gif" />
+            <img class="ad-img" src="<%= SideBarImagesList[i] %>" />
           </li>
-          <li>
-            <img class="ad-img" src="assets/images/sidebar/sm-baja.gif" />
-          </li>
-          <li>
-            <img class="ad-img" src="assets/images/sidebar/sm-bigtime.png" />
-          </li>
-          <li><img class="ad-img" src="assets/images/sidebar/sm-det.png" /></li>
-          <li><img class="ad-img" src="assets/images/sidebar/sm-dyn.gif" /></li>
-          <li><img class="ad-img" src="assets/images/sidebar/sm-ken.png" /></li>
-          <li>
-            <img class="ad-img" src="assets/images/sidebar/sm-locating.png" />
-          </li>
-          <li>
-            <img class="ad-img" src="assets/images/sidebar/sm-minuteman.png" />
-          </li>
-          <li>
-            <img class="ad-img" src="assets/images/sidebar/sm-nams.jpeg" />
-          </li>
-          <li><img class="ad-img" src="assets/images/sidebar/sm-rec.png" /></li>
-          <li>
-            <img class="ad-img" src="assets/images/sidebar/sm-recmng.gif" />
-          </li>
-          <li>
-            <img class="ad-img" src="assets/images/sidebar/sm-repfl.png" />
-          </li>
-          <li>
-            <img class="ad-img" src="assets/images/sidebar/sm-rsig.gif" />
-          </li>
+
+          <% } %>
         </ul>
       </div>
     </div>

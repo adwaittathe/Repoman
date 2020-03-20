@@ -12,55 +12,99 @@ const s3 = new AWS.S3({
 });
 const BUCKET_NAME = "repoman-data";
 
+const listDirectories = prefix => {
+  return new Promise((resolve, reject) => {
+    const s3params = {
+      Bucket: BUCKET_NAME,
+      Prefix: prefix
+    };
+    s3.listObjectsV2(s3params, (err, data) => {
+      if (err) {
+        reject(err);
+      }
+      resolve(data);
+      return data;
+    });
+  });
+};
+
+getSideBarImages();
+var SideBarImagesList = [];
+async function getSideBarImages() {
+  SideBarImagesList = [];
+  var keyList = await listDirectories("Side Bar Images/");
+  var len = keyList.Contents.length;
+  for (var k = 1; k < len; k++) {
+    var params = { Bucket: BUCKET_NAME, Key: keyList.Contents[k].Key };
+    var url = await s3.getSignedUrl("getObject", params);
+    SideBarImagesList.push(url);
+  }
+}
+
 module.exports = function(app) {
   app.get("/", function(req, res) {
-    res.sendFile(path.join(__dirname, "../public/index.html"));
+    res.render("index", { SideBarImagesList: SideBarImagesList });
+    //res.sendFile(path.join(__dirname, "../public/index.html"));
   });
   app.get("/index", function(req, res) {
-    res.sendFile(path.join(__dirname, "../public/index.html"));
+    //res.sendFile(path.join(__dirname, "../public/index.html"));
+    res.render("index", { SideBarImagesList: SideBarImagesList });
   });
   app.get("/aboutRepoman", function(req, res) {
-    res.sendFile(path.join(__dirname, "../public/aboutRepoman.html"));
+    //res.sendFile(path.join(__dirname, "../public/aboutRepoman.html"));
+    res.render("aboutRepoman", { SideBarImagesList: SideBarImagesList });
   });
 
   app.get("/aboutUSAWeb", function(req, res) {
-    res.sendFile(path.join(__dirname, "../public/aboutUSAWeb.html"));
+    //res.sendFile(path.join(__dirname, "../public/aboutUSAWeb.html"));
+    res.render("aboutUSAWeb", { SideBarImagesList: SideBarImagesList });
   });
   app.get("/contactUs", function(req, res) {
-    res.sendFile(path.join(__dirname, "../public/contactUs.html"));
+    //res.sendFile(path.join(__dirname, "../public/contactUs.html"));
+    res.render("contactUs", { SideBarImagesList: SideBarImagesList });
   });
   app.get("/directory", function(req, res) {
-    res.sendFile(path.join(__dirname, "../public/directory.html"));
+    //res.sendFile(path.join(__dirname, "../public/directory.html"));
+    res.render("index", { SideBarImagesList: SideBarImagesList });
   });
   app.get("/insurance", function(req, res) {
-    res.sendFile(path.join(__dirname, "../public/insurance.html"));
+    //res.sendFile(path.join(__dirname, "../public/insurance.html"));
+    res.render("insurance", { SideBarImagesList: SideBarImagesList });
   });
   app.get("/listingOptions", function(req, res) {
-    res.sendFile(path.join(__dirname, "../public/listingOptions.html"));
+    //res.sendFile(path.join(__dirname, "../public/listingOptions.html"));
+    res.render("listingOptions", { SideBarImagesList: SideBarImagesList });
   });
   app.get("/sitePolicy", function(req, res) {
-    res.sendFile(path.join(__dirname, "../public/sitePolicy.html"));
+    //res.sendFile(path.join(__dirname, "../public/sitePolicy.html"));
+    res.render("sitePolicy", { SideBarImagesList: SideBarImagesList });
   });
   app.get("/refund", function(req, res) {
-    res.sendFile(path.join(__dirname, "../public/refund.html"));
+    //res.sendFile(path.join(__dirname, "../public/refund.html"));
+    res.render("refund", { SideBarImagesList: SideBarImagesList });
   });
   app.get("/vendors", function(req, res) {
-    res.sendFile(path.join(__dirname, "../public/vendors.html"));
+    //res.sendFile(path.join(__dirname, "../public/vendors.html"));
+    res.render("vendors", { SideBarImagesList: SideBarImagesList });
   });
 
   app.get("/login", function(req, res) {
-    res.render("login", { error: "" });
+    res.render("login", { error: "", SideBarImagesList: SideBarImagesList });
     //res.sendFile(path.join(__dirname, "../public/login.html"))
   });
   app.get("/register", function(req, res) {
     //res.sendFile(path.join(__dirname, "../public/register.html"));
     res.render("register", {
       userObj: {},
-      error: ""
+      error: "",
+      SideBarImagesList: SideBarImagesList
     });
   });
   app.get("/customer", function(req, res) {
-    res.render("customer", { userObj: {} });
+    res.render("customer", {
+      userObj: {},
+      SideBarImagesList: SideBarImagesList
+    });
   });
   app.get("/customer", function(req, res) {
     res.sendFile(path.join(__dirname, "../public/passwordReset.html"));
@@ -92,8 +136,6 @@ module.exports = function(app) {
 
   app.get("/state/:state", async function(req, res) {
     var stateVal = req.params.state.toUpperCase();
-    console.log("STATE");
-    console.log(stateVal);
     Repoman.findAll({
       raw: true,
       where: {
@@ -105,64 +147,38 @@ module.exports = function(app) {
     }).then(async result => {
       var url = "";
       for (var i = 0; i < result.length; i++) {
-        //console.log(result[i].id + "/");
-        var keyList = await listDirectories(result[i].id + "/insuranceImages/");
-        //console.log("keyList.Contents.length");
-        //console.log(keyList.Contents.length);
+        console.log(result[i]);
+        var keyList = await listDirectories(
+          result[i]["Company Name"] + "/insuranceImages/"
+        );
         var len = keyList.Contents.length;
         var URLList = [];
         for (var k = 0; k < len; k++) {
-          //console.log(keyList.Contents[k].Key);
           var params = { Bucket: BUCKET_NAME, Key: keyList.Contents[k].Key };
           var url = await s3.getSignedUrl("getObject", params);
-          //console.log(url);
           URLList.push(url);
         }
         result[i].URLList = URLList;
-        // var URLList = [];
-        // for (var j = 0; j < keyList.Contents.length; j++) {
-        //   var params = { Bucket: BUCKET_NAME, Key: keyList.Contents[j].Key };
-        //   var url = await s3.getSignedUrl("getObject", params);
-        //   URLList.push(url);
-        // }
-        //console.log("---------_URL LIST _--------------");
-        //console.log(keyList);
-        //result[i].URLList = URLList;
-      }
-      // for (var i = 0; i < result.length; i++) {
-      //   result[i].companyImgUrl = Base64ToURL(result[i].companyImg);
-      //   result[i].insuredImg1Url = Base64ToURL(result[i].insuredImg1);
-      //   result[i].insuredImg2Url = Base64ToURL(result[i].insuredImg2);
-      //   result[i].insuredImg3Url = Base64ToURL(result[i].insuredImg3);
-      //   result[i].insuredImg4Url = Base64ToURL(result[i].insuredImg4);
-      //   result[i].insuredImg5Url = Base64ToURL(result[i].insuredImg5);
-      //   result[i].insuredImg6Url = Base64ToURL(result[i].insuredImg6);
-      //   result[i].insuredImg7Url = Base64ToURL(result[i].insuredImg7);
-      //   result[i].insuredImg8Url = Base64ToURL(result[i].insuredImg8);
-      // }
-      //await listAllObjectsFromS3Bucket(BUCKET_NAME, "328");
-      // var params = { Bucket: BUCKET_NAME, Key: "try/cat.jpg" };
-      // s3.getObject(params, function(err, data) {
-      //   if (err) {
-      //     console.log(err);
-      //     //return res.send({ error: err });
-      //   }
-      //   console.log("---------s3------");
-      //   console.log(data.Body);
-      // });
-      // var keyList = await listDirectories();
-      // for (var i = 0; i < keyList.Contents.length; i++) {
-      //   var params = { Bucket: BUCKET_NAME, Key: keyList.Contents[i].Key };
-      //   var s3OBJ = await s3.getObject(params).promise();
-      //   var url = Base64ToURL(s3OBJ.Body);
-      // }
+        var logoPath = await listDirectories(
+          result[i]["Company Name"] + "/companyLogo/"
+        );
+        var logoparams = { Bucket: BUCKET_NAME, Key: logoPath.Contents[0].Key };
+        var companyLogoUrl = await s3.getSignedUrl("getObject", logoparams);
+        result[i].companyLogoUrl = companyLogoUrl;
 
-      //console.log(dataArray);
-      console.log(result);
-      //res.json(result);
-      res.render("stateSearch", { zipData: result, stateVal: stateVal });
+        var mapparams = {
+          Bucket: BUCKET_NAME,
+          Key: result[i]["Company Name"] + "/companyInfo/map.pdf"
+        };
+        var companyMapUrl = await s3.getSignedUrl("getObject", mapparams);
+        result[i].companyMapUrl = companyMapUrl;
+      }
+      res.render("stateSearch", {
+        zipData: result,
+        stateVal: stateVal,
+        SideBarImagesList: SideBarImagesList
+      });
     });
-    //res.sendFile(path.join(__dirname, "../public/stateSearch.html"));
   });
   app.get("/company/:id", function(req, res) {
     res.sendFile(path.join(__dirname, "../public/companyView.html"));

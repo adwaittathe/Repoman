@@ -5,9 +5,9 @@ var sequelize = new Sequelize("repoman", "testuser", "Password@123", {
   port: 3306,
   dialect: "mysql",
   pool: {
-    max: 5,
+    max: 10,
     min: 0,
-    idle: 10000
+    idle: 1000
   },
   define: {
     timestamps: false,

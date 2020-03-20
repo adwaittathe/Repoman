@@ -122,13 +122,26 @@
                 <h3 class="text-dark text-left">Register Company</h3>
                 <br />
 
-                <form action="/addCompany" method="post">
+                <form
+                  action="/addCompany"
+                  method="post"
+                  enctype="multipart/form-data"
+                >
                   <% if(error!=''){ %>
                   <div class="alert alert-danger" role="alert">
                     <%=error%>
                   </div>
                   <%}%>
 
+                  <div class="form-group">
+                    Company Logo &nbsp;&nbsp;
+                    <input
+                      id="logo"
+                      type="file"
+                      name="companyLogo"
+                      accept="image/jpeg, image/png"
+                    />
+                  </div>
                   <div class="form-group">
                     <label for="company">Company Name</label>
                     <input
@@ -307,54 +320,9 @@
         <!-- Ad Space -->
         <div class="co-sm-3">
           <div id="vertical-ad-space">
-            <img
-              class="vertical-ad-img"
-              src="assets/images/sidebar/sm-baja.gif"
-            />
-            <img
-              class="vertical-ad-img"
-              src="assets/images/sidebar/sm-bigtime.png"
-            />
-            <img
-              class="vertical-ad-img"
-              src="assets/images/sidebar/sm-det.png"
-            />
-            <img
-              class="vertical-ad-img"
-              src="assets/images/sidebar/sm-allied.gif"
-            />
-            <img
-              class="vertical-ad-img"
-              src="assets/images/sidebar/sm-ken.png"
-            />
-            <img
-              class="vertical-ad-img"
-              src="assets/images/sidebar/sm-locating.png"
-            />
-            <img
-              class="vertical-ad-img"
-              src="assets/images/sidebar/sm-minuteman.png"
-            />
-            <img
-              class="vertical-ad-img"
-              src="assets/images/sidebar/sm-nams.jpeg"
-            />
-            <img
-              class="vertical-ad-img"
-              src="assets/images/sidebar/sm-rec.png"
-            />
-            <img
-              class="vertical-ad-img"
-              src="assets/images/sidebar/sm-recmng.gif"
-            />
-            <img
-              class="vertical-ad-img"
-              src="assets/images/sidebar/sm-repfl.png"
-            />
-            <img
-              class="vertical-ad-img"
-              src="assets/images/sidebar/sm-rsig.gif"
-            />
+            <% for(var i=0; i< SideBarImagesList.length; i++) { %>
+            <img class="vertical-ad-img" src="<%= SideBarImagesList[i] %>" />
+            <% } %>
           </div>
         </div>
       </div>

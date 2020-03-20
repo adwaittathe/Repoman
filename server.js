@@ -1,3 +1,4 @@
+//Definations
 var express = require("express");
 var app = express();
 var userModel = require("./models/user.js");
@@ -14,9 +15,17 @@ const fetch = require("node-fetch");
 const bcrypt = require("bcryptjs");
 const AWS = require("aws-sdk");
 const dotenv = require("dotenv");
+dotenv.config();
 const fs = require("fs");
 
-dotenv.config();
+const nodemailer = require("nodemailer");
+var transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: process.env.Email,
+    pass: process.env.Password
+  }
+});
 
 const s3 = new AWS.S3({
   accessKeyId: process.env.KeyId,
@@ -41,6 +50,89 @@ app.use(flash());
 require("./routes/htmlRoutes.js")(app);
 require("./routes/apiRoutes.js")(app);
 
+//----------------------------------------------------Functions------------------------------------------------------
+
+async function sendMail(obj) {
+  var mailOptions = {
+    to: "adwait.tathe@gmail.com",
+    subject: `New Company with name ${obj.company} is registered`,
+    html: `
+    <h4> Hi, <h4>
+    <h4> Hope you are having a good day! <h4>
+    <h4> New company is registered in Repoman <h4>
+    <h4> Please find the details below <h4>
+    <p/>
+    <h4> Name : ${obj.company} </h4>
+    <h4> State : ${obj.state} </h4>
+    <h4> Phone Number : ${obj.phoneNo} </h4>
+    <h4> Website : ${obj.website} </h4>
+    <p/>
+    <h4>Thank You</h4>
+    <h4>Repoman Team</h4>
+    `
+  };
+
+  transporter.sendMail(mailOptions, function(error, info) {
+    if (error) {
+      console.log(error);
+    } else {
+      console.log("Email sent: " + info.response);
+    }
+  });
+}
+
+const uploadFile = (fileName, key) => {
+  const fileContent = fs.readFileSync(fileName);
+  const params = {
+    Bucket: BUCKET_NAME,
+    Key: key,
+    Body: fileContent
+  };
+  s3.upload(params, function(err, data) {
+    if (err) {
+      console.log("ERROR");
+      console.log(err);
+      throw err;
+    }
+    console.log(`File uploaded successfully. ${data.Location}`);
+  });
+};
+const listDirectories = prefix => {
+  return new Promise((resolve, reject) => {
+    const s3params = {
+      Bucket: BUCKET_NAME,
+      Prefix: prefix
+    };
+    s3.listObjectsV2(s3params, (err, data) => {
+      if (err) {
+        reject(err);
+      }
+      resolve(data);
+      return data;
+    });
+  });
+};
+getSideBarImages();
+var SideBarImagesList = [];
+async function getSideBarImages() {
+  SideBarImagesList = [];
+  var keyList = await listDirectories("Side Bar Images/");
+  var len = keyList.Contents.length;
+  for (var k = 1; k < len; k++) {
+    var params = { Bucket: BUCKET_NAME, Key: keyList.Contents[k].Key };
+    var url = await s3.getSignedUrl("getObject", params);
+    SideBarImagesList.push(url);
+  }
+}
+
+function validation(pass1, pass2) {
+  if (pass1 == pass2) {
+    return true;
+  } else {
+    return false;
+  }
+}
+//----------------------------------------------------Routing------------------------------------------------------
 app.post("/zip", async function(req, response) {
   var url =
     "https://www.zipcodeapi.com/rest/CIkJigsGbUqnlUGDkGHrddrqhBofshJNxp1Xf3xXPGWxfFmBEruccI2tMKs7HGb6/radius.json/" +
@@ -82,7 +174,10 @@ app.post("/zip", async function(req, response) {
             d[i].img = url;
           }
         }
-        response.render("zipDisplay", { zipData: d });
+        response.render("zipDisplay", {
+          zipData: d,
+          SideBarImagesList: SideBarImagesList
+        });
       }
     });
 });
@@ -95,36 +190,115 @@ app.post("/upload", (req, res) => {
 
 app.get("/addCompany", (req, res) => {
   var sess = req.session;
-  res.render("addCompany", { userObj: {}, error: "" });
+  res.render("addCompany", {
+    userObj: {},
+    error: "",
+    SideBarImagesList: SideBarImagesList
+  });
 });
 
 app.post("/addCompany", (req, res) => {
   var sess = req.session;
-  console.log(req.body);
-  db.sync()
-    .then(function() {
-      return companyModel.create({
-        State: req.body.state,
-        Country: req.body.country,
-        "Company Name": req.body.company,
-        "Phone Number": req.body.phoneNo,
-        Address1: req.body.address1,
-        Address2: req.body.address2,
-        userId: sess.userId,
-        Website: req.body.website,
-        Description: req.body.companyDesc,
-        "Fax Number": req.body.faxNo,
-        Zip: req.body.zip,
-        isApproved: 0
-      });
+  var obj = {};
+  var path = null;
+  var filename = null;
+  new formidable.IncomingForm()
+    .parse(req)
+    .on("file", (name, file) => {
+      path = file.path;
+      filename = file.name;
     })
-    .then(function(result, error) {
-      if (result) {
-        res.render("customer", { userObj: {} });
+    .on("field", (name, field) => {
+      //console.log(name, field);
+      switch (name) {
+        case "state":
+          obj.state = field;
+          break;
+        case "country":
+          obj.country = field;
+          break;
+        case "company":
+          obj.company = field;
+          break;
+        case "phoneNo":
+          obj.phoneNo = field;
+          break;
+        case "address1":
+          obj.address1 = field;
+          break;
+        case "address2":
+          obj.address2 = field;
+          break;
+        case "website":
+          obj.website = field;
+          break;
+        case "companyDesc":
+          obj.companyDesc = field;
+          break;
+        case "faxNo":
+          obj.faxNo = field;
+          break;
+        case "zip":
+          obj.zip = field;
+          break;
       }
-      if (error) {
-        console.log(error);
-      }
+    })
+    .on("end", () => {
+      var url = obj.company + "/companyLogo/" + filename;
+      db.sync()
+        .then(function() {
+          return companyModel.create({
+            State: obj.state,
+            Country: obj.country,
+            "Company Name": obj.company,
+            "Phone Number": obj.phoneNo,
+            Address1: obj.address1,
+            Address2: obj.address2,
+            userId: sess.userId,
+            Website: obj.website,
+            Description: obj.companyDesc,
+            "Fax Number": obj.faxNo,
+            Zip: obj.zip,
+            isApproved: 0
+          });
+        })
+        .then(function(result, error) {
+          if (result) {
+            uploadFile(path, url);
+            sendMail(obj);
+            console.log("USER SESSION");
+            var userObject = sess.user;
+            console.log(userObject);
+            console.log("SESSION");
+            console.log(sess);
+            res.render("customer", {
+              userObj: userObject,
+              SideBarImagesList: SideBarImagesList
+            });
+          }
+          if (error) {
+            console.log(error);
+          }
+        });
+    });
+});
+
+app.post("/addAdvertiseImage", (req, res) => {
+  console.log(req.body);
+  var path = null;
+  var filename = null;
+  new formidable.IncomingForm()
+    .parse(req)
+    .on("file", (name, file) => {
+      path = file.path;
+      filename = file.name;
+    })
+    .on("field", (name, field) => {
+      console.log(name, field);
+    })
+    .on("end", () => {
+      var url = "Side Bar Images/" + filename;
+      uploadFile(path, url);
     });
 });
 
@@ -132,7 +306,7 @@ app.post("/addInsurance", (req, res) => {
   console.log(req.body);
   var path = null;
   var filename = null;
-  var id = null;
+  var Compname = null;
   var st = null;
   new formidable.IncomingForm()
     .parse(req)
@@ -143,15 +317,15 @@ app.post("/addInsurance", (req, res) => {
     })
     .on("field", (name, field) => {
       console.log(name, field);
-      if (name == "id") {
-        id = field;
+      if (name == "name") {
+        Compname = field;
       }
       if (name == "stateVal") {
         st = field;
       }
     })
     .on("end", () => {
-      var url = id + "/insuranceImages/" + filename;
+      var url = Compname + "/insuranceImages/" + filename;
       uploadFile(path, url);
       res.redirect("/state/" + st);
     });
@@ -161,7 +335,7 @@ app.post("/addMap", (req, res) => {
   console.log(req.body);
   var path = null;
   var filename = null;
-  var id = null;
+  var Compname = null;
   var st = null;
   new formidable.IncomingForm()
     .parse(req)
@@ -172,36 +346,19 @@ app.post("/addMap", (req, res) => {
     })
     .on("field", (name, field) => {
       console.log(name, field);
-      if (name == "id") {
-        id = field;
+      if (name == "name") {
+        Compname = field;
       }
       if (name == "stateVal") {
         st = field;
       }
     })
     .on("end", () => {
-      var url = id + "/companyInfo/" + filename;
+      var url = Compname + "/companyInfo/map.pdf";
       uploadFile(path, url);
       res.redirect("/state/" + st);
     });
 });
-
-const uploadFile = (fileName, key) => {
-  const fileContent = fs.readFileSync(fileName);
-  const params = {
-    Bucket: BUCKET_NAME,
-    Key: key,
-    Body: fileContent
-  };
-  s3.upload(params, function(err, data) {
-    if (err) {
-      console.log("ERROR");
-      console.log(err);
-      throw err;
-    }
-    console.log(`File uploaded successfully. ${data.Location}`);
-  });
-};
 
 app.post("/login", function(req, response) {
   console.log(req.body);
@@ -215,6 +372,7 @@ app.post("/login", function(req, response) {
     })
     .then(async function(res, err) {
       if (res) {
+        console.log(res);
         var user = new userModel({
           id: res.id,
           firstName: res.firstName,
@@ -227,7 +385,10 @@ app.post("/login", function(req, response) {
           user.password
         );
         if (!validatePass) {
-          response.render("login", { error: "Please enter a valid password" });
+          response.render("login", {
+            error: "Please enter a valid password",
+            SideBarImagesList: SideBarImagesList
+          });
           return;
         } else {
           var sess = req.session;
@@ -237,28 +398,30 @@ app.post("/login", function(req, response) {
             id: res.id,
             firstName: res.firstName,
             lastName: res.lastName,
-            email: res.email
+            email: res.email,
+            isAdmin: res.isAdmin
           };
-          response.render("customer", { userObj: obj });
+          sess.user = obj;
+          response.render("customer", {
+            userObj: obj,
+            SideBarImagesList: SideBarImagesList
+          });
         }
       } else {
-        response.render("login", { error: "Please enter a valid email" });
+        response.render("login", {
+          error: "Please enter a valid email",
+          SideBarImagesList: SideBarImagesList
+        });
       }
     });
 });
 
-function validation(pass1, pass2) {
-  if (pass1 == pass2) {
-    return true;
-  } else {
-    return false;
-  }
-}
 app.post("/register", async function(req, response) {
   if (!validation(req.body.password, req.body.confirmpassword)) {
     response.render("register", {
       userObj: req.body,
-      error: "Password and Confirm password should be same"
+      error: "Password and Confirm password should be same",
+      SideBarImagesList: SideBarImagesList
     });
     return;
   }
@@ -283,14 +446,20 @@ app.post("/register", async function(req, response) {
         var sess = req.session;
         sess.email = userCreateResult.email;
         sess.userId = userCreateResult.id;
+
         var obj = {
           id: userCreateResult.id,
           firstName: userCreateResult.firstName,
           lastName: userCreateResult.lastName,
-          email: userCreateResult.email
+          email: userCreateResult.email,
+          isAdmin: 0
         };
-        console.log(obj);
-        response.render("customer", { userObj: obj });
+        sess.user = obj;
+
+        response.render("customer", {
+          userObj: obj,
+          SideBarImagesList: SideBarImagesList
+        });
       }
     });
 });
@@ -315,7 +484,10 @@ app.get("/update", function(req, response) {
           password: res.password,
           company: res.company
         });
-        response.render("update", { userObj: user });
+        response.render("update", {
+          userObj: user,
+          SideBarImagesList: SideBarImagesList
+        });
       }
     });
 });
@@ -329,8 +501,13 @@ app.post("/updateComp", function(req, res) {
       }
     })
     .then(result => {
+      console.log("UPDATE RESULT");
       console.log(result);
-      res.render("updateCompany", { userObj: result, error: "" });
+      res.render("updateCompany", {
+        userObj: result,
+        error: "",
+        SideBarImagesList: SideBarImagesList
+      });
     });
 });
 
@@ -367,18 +544,27 @@ app.post("/approveCompany", function(req, res) {
     });
 });
 
-app.get("/admin", function(req, res) {
-  companyModel
-    .findAll({
-      raw: true,
-      where: {
-        isApproved: 0
-      },
-      order: [["Listing Level", "DESC"]]
-    })
-    .then(result => {
-      res.render("admin", { data: result });
-    });
+app.get("/admin", async function(req, res) {
+  let ToBeApprovedList = await companyModel.findAll({
+    raw: true,
+    where: {
+      isApproved: 0
+    },
+    order: [["Listing Level", "DESC"]]
+  });
+  let ApprovedList = await companyModel.findAll({
+    raw: true,
+    where: {
+      isApproved: 1
+    },
+    order: [["Listing Level", "DESC"]]
+  });
+
+  res.render("admin", {
+    newList: ToBeApprovedList,
+    oldList: ApprovedList,
+    SideBarImagesList: SideBarImagesList
+  });
 });
 
 app.post("/update", function(req, response) {
@@ -413,7 +599,10 @@ app.post("/update", function(req, response) {
             company: req.body.company
           };
           sess.email = req.body.email;
-          response.render("customer", { userObj: obj });
+          response.render("customer", {
+            userObj: obj,
+            SideBarImagesList: SideBarImagesList
+          });
         });
     })
     .catch(err => {

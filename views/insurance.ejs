@@ -10,7 +10,7 @@
       integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
       crossorigin="anonymous"
     />
-    <link rel="stylesheet" href="/assets/css/index.css" />
+    <link rel="stylesheet" href="assets/css/index.css" />
 
     <title>RepoMan</title>
   </head>
@@ -24,7 +24,7 @@
       <div class="container">
         <a class="navbar-brand" href="/index">
           <img
-            src="/assets/images/large-rm-logo.png"
+            src="assets/images/large-rm-logo.png"
             style="width: 140px; height:55px;"
             alt="Repoman"
           />
@@ -99,7 +99,7 @@
                 class="nav-item navbar-brand ml-3"
                 href="http://www.dynamicmfg.com/"
               >
-                <img src="/assets/images/dyn_navthumb.gif" alt="Dynamic" />
+                <img src="assets/images/dyn_navthumb.gif" alt="Dynamic" />
               </a>
             </li>
           </ul>
@@ -112,135 +112,108 @@
       </div>
     </nav>
     <!-- Main Content -->
-    <div class="container mt-2 mb-2">
+    <div class="container mt-2">
       <div class="row">
         <!-- Content  -->
         <div class="col-sm-9">
-          <% for (var i=0; i< zipData.length; i++) { var obj = "grey";
-          if(zipData[i]['Listing Level'].includes("Basic")) { obj = "#D3D3D3"; }
-          if(zipData[i]['Listing Level'].includes("Multi-Media")) { obj = "red";
-          } if(zipData[i]['Listing Level'].includes("Enhanced Annual") ||
-          zipData[i]['Listing Level'].includes("Enhanced Quarterly") ) { obj =
-          "firebrick"; } %>
-          <div class="card">
-            <a
-              href="/company/<%=zipData[i]['id'] %>"
-              id="company"
-              class="card-header"
-              style="background-color:<%= obj %>; color: black;"
-            >
-              <b> <%= zipData[i]['Company Name'] %> </b>
-            </a>
+          <div class="card border-0 bg-transparent">
+            <div class="card-body m-1 rounded" id="main-content-area">
+              <h1 class="text-dark text-center">Insurance Required</h1>
+              <h5 class="text-dark text-center">
+                Questions? Call: 803-412-6674
+              </h5>
+              <p>
+                The Repoman.com community contains recovery company listings and
+                message boards for the recovery industry. The community has been
+                online since 1995 and currently maintains relationships with
+                over 800 companies. The site is used daily by small and large
+                finance companies, banks and corporations to locate recovery
+                companies in the United States and Canada for repossession work
+                assignments.
 
-            <div class="card-body">
-              <div class="row">
-                <div class="col-sm-8">
-                  <p class="card-text">
-                    <b>Address </b> : <%= zipData[i]['Address1'] %> <%=
-                    zipData[i]['Address2'] %>
-                  </p>
-                  <p class="card-text">
-                    <b>Zipcode</b> : <%= zipData[i]['Zip'] %>
-                  </p>
-                  <p class="card-text">
-                    <b>State</b> : <%= zipData[i]['State'] %>
-                  </p>
-                  <p class="card-text">
-                    <b>Phone No</b> : <%= zipData[i]['Phone Number'] %>
-                  </p>
-                </div>
-                <div class="col-sm-4">
-                  <% if(zipData[i].companyLogoUrl){ %>
-                  <img
-                    src="<%= zipData[i].companyLogoUrl %>"
-                    style="height: 150px; width: 150px;"
-                  />
-                  <% } %>
-                </div>
-              </div>
-              <br />
-              <a href="<%= zipData[i].companyMapUrl %>">Map packet</a>
-              <br /><br />
-              <div class="row">
-                &nbsp; &nbsp;
-                <form
-                  id="formInsurance<%= i %>"
-                  action="/addInsurance"
-                  enctype="multipart/form-data"
-                  method="POST"
-                >
-                  <label>Insurance Image: </label>
-                  <input
-                    type="file"
-                    name="file"
-                    accept="image/jpeg, image/png"
-                  />
-                  <input
-                    name="name"
-                    type="hidden"
-                    value="<%= zipData[i]['Company Name'] %>"
-                  />
-                  <input
-                    name="stateVal"
-                    type="hidden"
-                    value="<%= stateVal %>"
-                  />
-                  <button type="submit" class="btn-primary">
-                    Add
-                  </button>
-                </form>
-              </div>
-              <div class="row">
-                &nbsp; &nbsp;
-                <form
-                  id="formMap<%= i %>"
-                  action="/addMap"
-                  enctype="multipart/form-data"
-                  method="POST"
-                >
-                  <label>Map packets: </label>
-                  <input type="file" name="file" />
-                  <input
-                    name="name"
-                    type="hidden"
-                    value="<%= zipData[i]['Company Name'] %>"
-                  />
-                  <input
-                    name="stateVal"
-                    type="hidden"
-                    value="<%= stateVal %>"
-                  />
-                  <button type="submit" class="btn-primary">
-                    Add
-                  </button>
-                </form>
-              </div>
-              <br />
-              <% if(zipData[i].isInsured == 1){ %>
-              <div class="row">
-                <img
-                  src="/assets/images/isInsured.png"
-                  style="height: 60px; width: 230px;"
-                />
-              </div>
-              <br />
+                <br /><br />
+                In our listings look for indication that comany submitted
+                insurance. Repoman.com does not currently mandate that proof of
+                insurance be provided before taking out an ad. However, agencies
+                now have the option of having proof of their insurance submitted
+                to us, and having that information reflected in their listing.
+                <br /><br />
+                Advertisers: Please have your certificate faxed to: 704-973-7996
+                Certificate holder: USAWeb / Repoman.com 310 Arlington Ave.
+                Suite 233, Charlotte, NC 28203 fax: 704-973-7996
+                <br /><br />
+                CLIENTS: If you intend to hire a repossession agency make it
+                mandatory that a certificate of insurance be submitted directly
+                to you (from the insurance provider) before any assignments are
+                issued. The fact that a certificate has been submitted to
+                Repoman.com does not provide any protection or guarantee that
+                the insurance is still in effect or meets the requirements you
+                feel will serve your interests.
+                <br /><br />
+                USAWeb.com minimum requirements are:<br />
+                General Liability or Garage Liability Insurance<br />
+                (With wrongful repossession coverage)
+                <br /><br />
+                USAWeb.com 'does not' require:<br />
+                *Dishonesty Bond<br />
+                **On-hook Coverage<br />
+                ***Storage Lot Coverage<br />
+                ****Personal Effects Coverage <br />
+                *****Workman's Compensation<br />
+                ******1 Million Dollar per Occurrence Coverage
+                <br /><br />
+                * If you feel the agency you hire should be bonded, make sure
+                you are issued a certificate of bonding.
+                <br />
+                ** If the collateral you wish to have repossessed has any
+                significant value, make sure you verify that their on-hook
+                coverage exceeds the value of your collateral.
+                <br />
+                *** If you expect to hire the repossession agency to store your
+                collateral, verify that their garage liability coverage is high
+                enough.
+                <br />
+                **** If there is a possibility that the collateral contains
+                personal effects that may need to be insured in case of claims
+                of theft or loss, verify that their policy has coverage for
+                personal property storage.
+                <br />
+                ***** If you are concerned that you could be held responsible
+                for any injury that should occur to the recovery agent while
+                repossessing your collateral, verify that they have workman's
+                compensation coverage, or the very least consider getting a
+                waiver signed.
+                <br />
+                ****** Many Lenders require coverage of ' 1 Million Dollars per
+                Occurrence ' There is an insurance carrier that provides
+                wrongful repossession insurance that has an aggregate of 1
+                million dollars on wrongful repo and auto liability with per
+                person limits of $250K. BE AWARE OF THE LIMITS PROVIDED!
+                <br />
 
-              <% } %>
-
-              <div class="row">
-                <% for(var k=0; k< zipData[i]['URLList'].length; k++) { %>
-
-                <img
-                  src="<%= zipData[i]['URLList'][k] %>"
-                  style="height: 50px; width: 110px;"
-                />
-                &nbsp;&nbsp; <% } %>
-              </div>
+                If you see an insurance company logo in the agency's add, click
+                on that link and learn a little about who stands behind that
+                company. Most of these Insurance Groups provide coverage that
+                far exceeds the minimum requirements of Repoman.com Our minimum
+                requirements are not set to protect us or you. They are set as a
+                bench mark and take into account a lot of variable scenarios.
+                <br />
+                Hiring a repossession agency is not something to be taken
+                lightly and if you are not absolutely sure of all the risk and
+                liabilities involved in taking that step, pick up the phone and
+                call someone that can explain the risks to you. The Insurance
+                Groups that advertise on this site will generally field your
+                insurance questions and give you good information to go on.
+                <br />
+                Don't do business with any agency that will not supply you with
+                proof of insurance. Proof of insurance should come directly from
+                the insurance group/agent or be verified directly.
+                <br />
+                Thanks for looking to Repoman.com to help you find a qualified
+                recovery expert.
+              </p>
             </div>
           </div>
-          <br />
-
-          <% } %>
         </div>
         <!-- Ad Space -->
         <div class="co-sm-3">
@@ -291,7 +264,7 @@
           <div class="col-sm-4">
             <img
               id="footer-img"
-              src="/assets/images/large-rm-logo.png"
+              src="assets/images/large-rm-logo.png"
               alt="RepoMan.com"
             />
           </div>
@@ -306,10 +279,9 @@
         </div>
       </div>
     </div>
-
     <script
-      src="https://code.jquery.com/jquery-3.4.1.js"
-      integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU="
+      src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+      integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
       crossorigin="anonymous"
     ></script>
     <script

@@ -13,7 +13,8 @@ var User = db.define(
     firstName: Sequelize.STRING,
     lastName: Sequelize.STRING,
     email: Sequelize.STRING,
-    password: Sequelize.STRING
+    password: Sequelize.STRING,
+    isAdmin: Sequelize.INTEGER
   },
   {
     freezeTableName: true,

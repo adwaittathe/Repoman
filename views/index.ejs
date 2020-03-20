@@ -255,49 +255,12 @@
     <div id="scroller" style="width: 1110px; height: 75px; margin: 0 auto;">
       <div class="innerScrollArea">
         <ul>
-          <!-- Define photos here -->
+          <% for(var i=0; i< SideBarImagesList.length; i++) { %>
           <li>
-            <img class="ad-img" src="./assets/images/sidebar/sm-allied.gif" />
+            <img class="ad-img" src="<%= SideBarImagesList[i] %>" />
           </li>
-          <li>
-            <img class="ad-img" src="./assets/images/sidebar/sm-baja.gif" />
-          </li>
-          <li>
-            <img class="ad-img" src="./assets/images/sidebar/sm-bigtime.png" />
-          </li>
-          <li>
-            <img class="ad-img" src="./assets/images/sidebar/sm-det.png" />
-          </li>
-          <li>
-            <img class="ad-img" src="./assets/images/sidebar/sm-dyn.gif" />
-          </li>
-          <li>
-            <img class="ad-img" src="./assets/images/sidebar/sm-ken.png" />
-          </li>
-          <li>
-            <img class="ad-img" src="./assets/images/sidebar/sm-locating.png" />
-          </li>
-          <li>
-            <img
-              class="ad-img"
-              src="./assets/images/sidebar/sm-minuteman.png"
-            />
-          </li>
-          <li>
-            <img class="ad-img" src="./assets/images/sidebar/sm-nams.jpeg" />
-          </li>
-          <li>
-            <img class="ad-img" src="./assets/images/sidebar/sm-rec.png" />
-          </li>
-          <li>
-            <img class="ad-img" src="./assets/images/sidebar/sm-recmng.gif" />
-          </li>
-          <li>
-            <img class="ad-img" src="./assets/images/sidebar/sm-repfl.png" />
-          </li>
-          <li>
-            <img class="ad-img" src="./assets/images/sidebar/sm-rsig.gif" />
-          </li>
+
+          <% } %>
         </ul>
       </div>
     </div>
