@@ -15,6 +15,7 @@ const fetch = require("node-fetch");
 const bcrypt = require("bcryptjs");
 const AWS = require("aws-sdk");
 const dotenv = require("dotenv");
+const jwt = require("jsonwebtoken");
 dotenv.config();
 const fs = require("fs");
 
@@ -23,13 +24,13 @@ var transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
     user: process.env.Email,
-    pass: process.env.Password
-  }
+    pass: process.env.Password,
+  },
 });
 
 const s3 = new AWS.S3({
   accessKeyId: process.env.KeyId,
-  secretAccessKey: process.env.AccessKey
+  secretAccessKey: process.env.AccessKey,
 });
 const BUCKET_NAME = "repoman-data";
 
@@ -42,7 +43,7 @@ app.use(
   session({
     secret: "repomaisthepassphrase",
     resave: true,
-    saveUninitialized: true
+    saveUninitialized: true,
   })
 );
 app.use(flash());
@@ -56,23 +57,43 @@ async function sendMail(obj) {
   var mailOptions = {
     to: "adwait.tathe@gmail.com",
     subject: `New Company with name ${obj.company} is registered`,
-    html: `
-    <h4> Hi, <h4>
-    <h4> Hope you are having a good day! <h4>
-    <h4> New company is registered in Repoman <h4>
-    <h4> Please find the details below <h4>
-    <p/>
-    <h4> Name : ${obj.company} </h4>
-    <h4> State : ${obj.state} </h4>
-    <h4> Phone Number : ${obj.phoneNo} </h4>
-    <h4> Website : ${obj.website} </h4>
-    <p/>
-    <h4>Thank You</h4>
-    <h4>Repoman Team</h4>
-    `
+    text: `Hi, 
+    Hope you are having a good day! 
+    New company is registered in Repoman 
+    Please find the details below \n
+    Name : ${obj.company} 
+    State : ${obj.state}
+    Phone Number : ${obj.phoneNo}
+    Website : ${obj.website} \n
+    Thank You
+    Repoman Team`,
   };
 
-  transporter.sendMail(mailOptions, function(error, info) {
+  transporter.sendMail(mailOptions, function (error, info) {
+    if (error) {
+      console.log(error);
+    } else {
+      console.log("Email sent: " + info.response);
+    }
+  });
+}
+
+async function resetPasswordMail(token) {
+  var mailOptions = {
+    to: "adwait.tathe@gmail.com",
+    subject: `Reset Password`,
+    text:
+      "You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n" +
+      "Please click on the following link, or paste this into your browser to complete the process:\n\n" +
+      "http://" +
+      "localhost:8080" +
+      "/reset/" +
+      token +
+      "\n\n" +
+      "If you did not request this, please ignore this email and your password will remain unchanged.\n",
+  };
+
+  transporter.sendMail(mailOptions, function (error, info) {
     if (error) {
       console.log(error);
     } else {
@@ -86,9 +107,9 @@ const uploadFile = (fileName, key) => {
   const params = {
     Bucket: BUCKET_NAME,
     Key: key,
-    Body: fileContent
+    Body: fileContent,
   };
-  s3.upload(params, function(err, data) {
+  s3.upload(params, function (err, data) {
     if (err) {
       console.log("ERROR");
       console.log(err);
@@ -97,11 +118,11 @@ const uploadFile = (fileName, key) => {
     console.log(`File uploaded successfully. ${data.Location}`);
   });
 };
-const listDirectories = prefix => {
+const listDirectories = (prefix) => {
   return new Promise((resolve, reject) => {
     const s3params = {
       Bucket: BUCKET_NAME,
-      Prefix: prefix
+      Prefix: prefix,
     };
     s3.listObjectsV2(s3params, (err, data) => {
       if (err) {
@@ -133,7 +154,7 @@ function validation(pass1, pass2) {
   }
 }
 //----------------------------------------------------Routing------------------------------------------------------
-app.post("/zip", async function(req, response) {
+app.post("/zip", async function (req, response) {
   var url =
     "https://www.zipcodeapi.com/rest/CIkJigsGbUqnlUGDkGHrddrqhBofshJNxp1Xf3xXPGWxfFmBEruccI2tMKs7HGb6/radius.json/" +
     req.body.zipCode +
@@ -150,17 +171,17 @@ app.post("/zip", async function(req, response) {
   }
   var Op = Sequelize.Op;
   db.sync()
-    .then(function() {
+    .then(function () {
       return companyModel.findAll({
         where: {
           Zip: {
-            [Op.in]: zipList
-          }
+            [Op.in]: zipList,
+          },
         },
-        order: [["Listing Level", "DESC"]]
+        order: [["Listing Level", "DESC"]],
       });
     })
-    .then(function(res, err) {
+    .then(function (res, err) {
       if (res) {
         var obj = JSON.stringify(res);
         var d = JSON.parse(obj);
@@ -176,7 +197,7 @@ app.post("/zip", async function(req, response) {
         }
         response.render("zipDisplay", {
           zipData: d,
-          SideBarImagesList: SideBarImagesList
+          SideBarImagesList: SideBarImagesList,
         });
       }
     });
@@ -193,7 +214,7 @@ app.get("/addCompany", (req, res) => {
   res.render("addCompany", {
     userObj: {},
     error: "",
-    SideBarImagesList: SideBarImagesList
+    SideBarImagesList: SideBarImagesList,
   });
 });
 
@@ -246,7 +267,7 @@ app.post("/addCompany", (req, res) => {
     .on("end", () => {
       var url = obj.company + "/companyLogo/" + filename;
       db.sync()
-        .then(function() {
+        .then(function () {
           return companyModel.create({
             State: obj.state,
             Country: obj.country,
@@ -258,22 +279,19 @@ app.post("/addCompany", (req, res) => {
             Website: obj.website,
             Description: obj.companyDesc,
             "Fax Number": obj.faxNo,
+            "Listing Level": 0,
             Zip: obj.zip,
-            isApproved: 0
+            isApproved: 0,
           });
         })
-        .then(function(result, error) {
+        .then(function (result, error) {
           if (result) {
             uploadFile(path, url);
             sendMail(obj);
-            console.log("USER SESSION");
             var userObject = sess.user;
-            console.log(userObject);
-            console.log("SESSION");
-            console.log(sess);
             res.render("customer", {
               userObj: userObject,
-              SideBarImagesList: SideBarImagesList
+              SideBarImagesList: SideBarImagesList,
             });
           }
           if (error) {
@@ -282,9 +300,104 @@ app.post("/addCompany", (req, res) => {
         });
     });
 });
+app.get("/passwordReset", function (req, res) {
+  res.render("passwordreset", {
+    message: "",
+    SideBarImagesList: SideBarImagesList,
+  });
+});
+
+app.post("/passwordReset", async function (req, res) {
+  let user = await userModel.findOne({
+    where: {
+      email: req.body.email,
+    },
+  });
+  if (user) {
+    const token = jwt.sign({ _email: req.body.email }, process.env.TOKEN_KEY);
+    await resetPasswordMail(token);
+    res.render("passwordreset", {
+      message: "Email is been sent with reset password instructions",
+      SideBarImagesList: SideBarImagesList,
+    });
+  } else {
+    res.render("passwordreset", {
+      message: "The user with this email do not exist",
+      SideBarImagesList: SideBarImagesList,
+    });
+  }
+});
+
+app.get("/reset/:token", function (req, res) {
+  console.log("IN RESET");
+  const token = req.params.token;
+  console.log(token);
+  const tokendata = jwt.verify(token, process.env.TOKEN_KEY);
+  console.log("VERIFIED TOKEN");
+  const userEmail = tokendata._email;
+  res.render("newPassword", {
+    email: userEmail,
+    message: "",
+    SideBarImagesList: SideBarImagesList,
+  });
+});
+
+app.post("/newPassword", async function (req, res) {
+  console.log(req.body);
+  if (!validation(req.body.newPassword, req.body.confirmPassword)) {
+    res.render("newPassword", {
+      email: req.body.emailID,
+      message: "Password and Confirm password should be same",
+      SideBarImagesList: SideBarImagesList,
+    });
+    return;
+  }
+
+  const salt = await bcrypt.genSalt(10);
+  const hashPass = await bcrypt.hash(req.body.newPassword, salt);
+  userModel
+    .update(
+      {
+        password: hashPass,
+      },
+      { where: { email: req.body.emailID } }
+    )
+    .then((result) => {
+      console.log("Password updated successfully");
+      res.render("login", {
+        error: "Password updated successfully",
+        SideBarImagesList: SideBarImagesList,
+      });
+    })
+    .catch((err) => {
+      console.log("update failed");
+      console.log(err);
+    });
+});
+
+// app.post("/updateComp", function(req, res) {
+//   var companyId = req.body.id;
+//   companyModel
+//     .findOne({
+//       raw: true,
+//       where: {
+//         id: companyId
+//       }
+//     })
+//     .then(result => {
+//       console.log("UPDATE RESULT");
+//       console.log(result);
+//       res.render("updateCompany", {
+//         userObj: result,
+//         error: "",
+//         SideBarImagesList: SideBarImagesList
+//       });
+//     });
+//   console.log(emailId);
+// });
 
 app.post("/addAdvertiseImage", (req, res) => {
-  console.log(req.body);
+  var sess = req.session;
   var path = null;
   var filename = null;
   new formidable.IncomingForm()
@@ -299,6 +412,7 @@ app.post("/addAdvertiseImage", (req, res) => {
     .on("end", () => {
       var url = "Side Bar Images/" + filename;
       uploadFile(path, url);
+      res.redirect("/customer");
     });
 });
 
@@ -360,17 +474,18 @@ app.post("/addMap", (req, res) => {
     });
 });
 
-app.post("/login", function(req, response) {
-  console.log(req.body);
+app.post("/login", function (req, response) {
+  //req.session.destroy();
+  getSideBarImages();
   db.sync()
-    .then(function() {
+    .then(function () {
       return userModel.findOne({
         where: {
-          email: req.body.email
-        }
+          email: req.body.email,
+        },
       });
     })
-    .then(async function(res, err) {
+    .then(async function (res, err) {
       if (res) {
         console.log(res);
         var user = new userModel({
@@ -378,7 +493,7 @@ app.post("/login", function(req, response) {
           firstName: res.firstName,
           lastName: res.lastName,
           email: res.email,
-          password: res.password
+          password: res.password,
         });
         const validatePass = await bcrypt.compare(
           req.body.password,
@@ -387,7 +502,7 @@ app.post("/login", function(req, response) {
         if (!validatePass) {
           response.render("login", {
             error: "Please enter a valid password",
-            SideBarImagesList: SideBarImagesList
+            SideBarImagesList: SideBarImagesList,
           });
           return;
         } else {
@@ -399,44 +514,59 @@ app.post("/login", function(req, response) {
             firstName: res.firstName,
             lastName: res.lastName,
             email: res.email,
-            isAdmin: res.isAdmin
+            isAdmin: res.isAdmin,
           };
+
           sess.user = obj;
-          response.render("customer", {
-            userObj: obj,
-            SideBarImagesList: SideBarImagesList
-          });
+          response.redirect("/customer");
         }
       } else {
         response.render("login", {
           error: "Please enter a valid email",
-          SideBarImagesList: SideBarImagesList
+          SideBarImagesList: SideBarImagesList,
         });
       }
     });
 });
 
-app.post("/register", async function(req, response) {
+app.get("/customer", function (req, res) {
+  console.log("IN CUSTomer page==-----------");
+  if (req.session.user) {
+    var obj = req.session.user;
+    res.render("customer", {
+      userObj: obj,
+      SideBarImagesList: SideBarImagesList,
+    });
+  } else {
+    res.redirect("login", {
+      error: "Please login to continue",
+      SideBarImagesList: SideBarImagesList,
+    });
+  }
+});
+
+app.post("/register", async function (req, response) {
+  getSideBarImages();
   if (!validation(req.body.password, req.body.confirmpassword)) {
     response.render("register", {
       userObj: req.body,
       error: "Password and Confirm password should be same",
-      SideBarImagesList: SideBarImagesList
+      SideBarImagesList: SideBarImagesList,
     });
     return;
   }
   const salt = await bcrypt.genSalt(10);
   const hashPass = await bcrypt.hash(req.body.password, salt);
   db.sync()
-    .then(function() {
+    .then(function () {
       return userModel.create({
         firstName: req.body.firstName,
         lastName: req.body.lastName,
         email: req.body.email,
-        password: hashPass
+        password: hashPass,
       });
     })
-    .then(function(userCreateResult, error) {
+    .then(function (userCreateResult, error) {
       if (error) {
         console.log("Error");
         console.log(error);
@@ -452,29 +582,25 @@ app.post("/register", async function(req, response) {
           firstName: userCreateResult.firstName,
           lastName: userCreateResult.lastName,
           email: userCreateResult.email,
-          isAdmin: 0
+          isAdmin: 0,
         };
         sess.user = obj;
-
-        response.render("customer", {
-          userObj: obj,
-          SideBarImagesList: SideBarImagesList
-        });
+        response.redirect("customer");
       }
     });
 });
 
-app.get("/update", function(req, response) {
+app.get("/update", function (req, response) {
   var sess = req.session;
   db.sync()
-    .then(function() {
+    .then(function () {
       return userModel.findOne({
         where: {
-          email: sess.email
-        }
+          email: sess.email,
+        },
       });
     })
-    .then(function(res, err) {
+    .then(function (res, err) {
       if (res) {
         var user = new userModel({
           id: res.id,
@@ -482,92 +608,132 @@ app.get("/update", function(req, response) {
           lastName: res.lastName,
           email: res.email,
           password: res.password,
-          company: res.company
+          company: res.company,
         });
         response.render("update", {
           userObj: user,
-          SideBarImagesList: SideBarImagesList
+          SideBarImagesList: SideBarImagesList,
         });
       }
     });
 });
-app.post("/updateComp", function(req, res) {
+app.post("/updateComp", function (req, res) {
   var companyId = req.body.id;
   companyModel
     .findOne({
       raw: true,
       where: {
-        id: companyId
-      }
+        id: companyId,
+      },
     })
-    .then(result => {
+    .then((result) => {
       console.log("UPDATE RESULT");
       console.log(result);
       res.render("updateCompany", {
         userObj: result,
         error: "",
-        SideBarImagesList: SideBarImagesList
+        SideBarImagesList: SideBarImagesList,
       });
     });
 });
 
-app.post("/approveCompany", function(req, res) {
+app.post("/approveCompany", function (req, res) {
   console.log(req.body);
-  var approve = 0;
   if (req.body.approve) {
-    approve = 1;
+    companyModel
+      .update(
+        {
+          State: req.body.state,
+          "Company Name": req.body.company,
+          "Phone Number": req.body.phoneNo,
+          Address1: req.body.address1,
+          Address2: req.body.address2,
+          Zip: req.body.zip,
+          State: req.body.state,
+          Country: req.body.country,
+          Website: req.body.website,
+          "Fax Number": req.body.faxNo,
+          Description: req.body.companyDesc,
+          isApproved: 1,
+        },
+        { where: { id: req.body.companyId } }
+      )
+      .then((result) => {
+        console.log(result);
+        res.redirect("admin");
+      })
+      .catch((err) => {
+        console.log("update failed");
+        console.log(err);
+      });
+  } else {
+    companyModel
+      .update(
+        {
+          State: req.body.state,
+          "Company Name": req.body.company,
+          "Phone Number": req.body.phoneNo,
+          Address1: req.body.address1,
+          Address2: req.body.address2,
+          Zip: req.body.zip,
+          State: req.body.state,
+          Country: req.body.country,
+          Website: req.body.website,
+          "Fax Number": req.body.faxNo,
+          Description: req.body.companyDesc,
+        },
+        { where: { id: req.body.companyId } }
+      )
+      .then((result) => {
+        console.log(result);
+        res.redirect("admin");
+      })
+      .catch((err) => {
+        console.log("update failed");
+        console.log(err);
+      });
   }
-  companyModel
-    .update(
-      {
-        State: req.body.state,
-        "Company Name": req.body.company,
-        "Phone Number": req.body.phoneNo,
-        Address1: req.body.address1,
-        Address2: req.body.address2,
-        Zip: req.body.zip,
-        State: req.body.state,
-        Country: req.body.country,
-        Website: req.body.website,
-        "Fax Number": req.body.faxNo,
-        Description: req.body.companyDesc,
-        isApproved: approve
+});
+
+app.get("/admin", async function (req, res) {
+  if (req.session.user) {
+    var userObject = req.session.user;
+
+    let user = await userModel.findOne({
+      where: {
+        email: userObject.email,
       },
-      { where: { id: req.body.companyId } }
-    )
-    .then(result => {
-      console.log(result);
-    })
-    .catch(err => {
-      console.log("update failed");
-      console.log(err);
     });
+    if (user.isAdmin == 1) {
+      let ToBeApprovedList = await companyModel.findAll({
+        raw: true,
+        where: {
+          isApproved: 0,
+        },
+        order: [["Listing Level", "DESC"]],
+      });
+      let ApprovedList = await companyModel.findAll({
+        raw: true,
+        where: {
+          isApproved: 1,
+        },
+        order: [["Listing Level", "DESC"]],
+      });
+
+      res.render("admin", {
+        newList: ToBeApprovedList,
+        oldList: ApprovedList,
+        SideBarImagesList: SideBarImagesList,
+      });
+    } else {
+      res.redirect("/customer");
+    }
+  } else {
+    res.redirect("/login");
+  }
 });
 
-app.get("/admin", async function(req, res) {
-  let ToBeApprovedList = await companyModel.findAll({
-    raw: true,
-    where: {
-      isApproved: 0
-    },
-    order: [["Listing Level", "DESC"]]
-  });
-  let ApprovedList = await companyModel.findAll({
-    raw: true,
-    where: {
-      isApproved: 1
-    },
-    order: [["Listing Level", "DESC"]]
-  });
-
-  res.render("admin", {
-    newList: ToBeApprovedList,
-    oldList: ApprovedList,
-    SideBarImagesList: SideBarImagesList
-  });
-});
-
-app.post("/update", function(req, response) {
+app.post("/update", function (req, response) {
   var sess = req.session;
 
   userModel
@@ -576,36 +742,36 @@ app.post("/update", function(req, response) {
         firstName: req.body.firstName,
         lastName: req.body.lastName,
         email: req.body.email,
-        company: req.body.company
+        company: req.body.company,
       },
       { where: { email: sess.email } }
     )
-    .then(result => {
+    .then((result) => {
       console.log("Details updated successfully");
       companyModel
         .update(
           {
             "Company Name": req.body.company,
             Name: req.body.firstName + " " + req.body.lastName,
-            Username: req.body.email
+            Username: req.body.email,
           },
           { where: { Username: sess.email } }
         )
-        .then(res => {
+        .then((res) => {
           var obj = {
             firstName: req.body.firstName,
             lastName: req.body.lastName,
             email: req.body.email,
-            company: req.body.company
+            company: req.body.company,
           };
           sess.email = req.body.email;
           response.render("customer", {
             userObj: obj,
-            SideBarImagesList: SideBarImagesList
+            SideBarImagesList: SideBarImagesList,
           });
         });
     })
-    .catch(err => {
+    .catch((err) => {
       console.log("update failed");
       console.log(err);
     });
@@ -613,7 +779,7 @@ app.post("/update", function(req, response) {
 
 app.listen(80);
 
-app.listen(port, function() {
+app.listen(port, function () {
   console.log("App listening on PORT: " + port);
 });
 

@@ -116,19 +116,10 @@
       <div class="row">
         <!-- Content  -->
         <div class="col">
-          <% for (var i=0; i< zipData.length; i++) { var obj = "grey";
-          if(zipData[i]['Listing Level'].includes("Basic")) { obj = "#D3D3D3"; }
-          if(zipData[i]['Listing Level'].includes("Multi-Media")) { obj = "red";
-          } if(zipData[i]['Listing Level'].includes("Enhanced Annual") ||
-          zipData[i]['Listing Level'].includes("Enhanced Quarterly") ) { obj =
-          "firebrick"; } %>
+          <% for (var i=0; i< zipData.length; i++) { %>
 
           <div class="card">
-            <h5
-              id="company"
-              class="card-header"
-              style="background-color:<%= obj %>; color: black;"
-            >
+            <h5 id="company" class="card-header">
               <%= zipData[i]['Company Name'] %>
             </h5>
 

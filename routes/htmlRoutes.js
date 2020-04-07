@@ -5,18 +5,19 @@ var Repoman = require("../models/company.js");
 var Sequelize = require("sequelize");
 const AWS = require("aws-sdk");
 const dotenv = require("dotenv");
+var userModel = require("../models/user.js");
 dotenv.config();
 const s3 = new AWS.S3({
   accessKeyId: process.env.KeyId,
-  secretAccessKey: process.env.AccessKey
+  secretAccessKey: process.env.AccessKey,
 });
 const BUCKET_NAME = "repoman-data";
 
-const listDirectories = prefix => {
+const listDirectories = (prefix) => {
   return new Promise((resolve, reject) => {
     const s3params = {
       Bucket: BUCKET_NAME,
-      Prefix: prefix
+      Prefix: prefix,
     };
     s3.listObjectsV2(s3params, (err, data) => {
       if (err) {
@@ -28,7 +29,7 @@ const listDirectories = prefix => {
   });
 };
 
-getSideBarImages();
+//getSideBarImages();
 var SideBarImagesList = [];
 async function getSideBarImages() {
   SideBarImagesList = [];
@@ -41,88 +42,73 @@ async function getSideBarImages() {
   }
 }
 
-module.exports = function(app) {
-  app.get("/", function(req, res) {
+module.exports = function (app) {
+  app.get("/", async function (req, res) {
+    await getSideBarImages();
     res.render("index", { SideBarImagesList: SideBarImagesList });
     //res.sendFile(path.join(__dirname, "../public/index.html"));
   });
-  app.get("/index", function(req, res) {
+  app.get("/index", async function (req, res) {
+    await getSideBarImages();
     //res.sendFile(path.join(__dirname, "../public/index.html"));
     res.render("index", { SideBarImagesList: SideBarImagesList });
   });
-  app.get("/aboutRepoman", function(req, res) {
+  app.get("/aboutRepoman", function (req, res) {
     //res.sendFile(path.join(__dirname, "../public/aboutRepoman.html"));
     res.render("aboutRepoman", { SideBarImagesList: SideBarImagesList });
   });
 
-  app.get("/aboutUSAWeb", function(req, res) {
+  app.get("/aboutUSAWeb", function (req, res) {
     //res.sendFile(path.join(__dirname, "../public/aboutUSAWeb.html"));
     res.render("aboutUSAWeb", { SideBarImagesList: SideBarImagesList });
   });
-  app.get("/contactUs", function(req, res) {
+  app.get("/contactUs", function (req, res) {
     //res.sendFile(path.join(__dirname, "../public/contactUs.html"));
     res.render("contactUs", { SideBarImagesList: SideBarImagesList });
   });
-  app.get("/directory", function(req, res) {
+  app.get("/directory", function (req, res) {
     //res.sendFile(path.join(__dirname, "../public/directory.html"));
     res.render("index", { SideBarImagesList: SideBarImagesList });
   });
-  app.get("/insurance", function(req, res) {
+  app.get("/insurance", function (req, res) {
     //res.sendFile(path.join(__dirname, "../public/insurance.html"));
     res.render("insurance", { SideBarImagesList: SideBarImagesList });
   });
-  app.get("/listingOptions", function(req, res) {
+  app.get("/listingOptions", function (req, res) {
     //res.sendFile(path.join(__dirname, "../public/listingOptions.html"));
     res.render("listingOptions", { SideBarImagesList: SideBarImagesList });
   });
-  app.get("/sitePolicy", function(req, res) {
+  app.get("/sitePolicy", function (req, res) {
     //res.sendFile(path.join(__dirname, "../public/sitePolicy.html"));
     res.render("sitePolicy", { SideBarImagesList: SideBarImagesList });
   });
-  app.get("/refund", function(req, res) {
+  app.get("/refund", function (req, res) {
     //res.sendFile(path.join(__dirname, "../public/refund.html"));
     res.render("refund", { SideBarImagesList: SideBarImagesList });
   });
-  app.get("/vendors", function(req, res) {
+  app.get("/vendors", function (req, res) {
     //res.sendFile(path.join(__dirname, "../public/vendors.html"));
     res.render("vendors", { SideBarImagesList: SideBarImagesList });
   });
 
-  app.get("/login", function(req, res) {
+  app.get("/login", function (req, res) {
     res.render("login", { error: "", SideBarImagesList: SideBarImagesList });
     //res.sendFile(path.join(__dirname, "../public/login.html"))
   });
-  app.get("/register", function(req, res) {
+  app.get("/register", function (req, res) {
     //res.sendFile(path.join(__dirname, "../public/register.html"));
     res.render("register", {
       userObj: {},
       error: "",
-      SideBarImagesList: SideBarImagesList
+      SideBarImagesList: SideBarImagesList,
     });
   });
-  app.get("/customer", function(req, res) {
-    res.render("customer", {
-      userObj: {},
-      SideBarImagesList: SideBarImagesList
-    });
-  });
-  app.get("/customer", function(req, res) {
-    res.sendFile(path.join(__dirname, "../public/passwordReset.html"));
-  });
 
-  function Base64ToURL(dataImg) {
-    var bufferBase64 = new Buffer(dataImg, "binary").toString("base64");
-    var url = "data:image/jpeg;base64," + bufferBase64;
-    if (bufferBase64) {
-      return url;
-    }
-  }
-
-  const listDirectories = prefix => {
+  const listDirectories = (prefix) => {
     return new Promise((resolve, reject) => {
       const s3params = {
         Bucket: BUCKET_NAME,
-        Prefix: prefix
+        Prefix: prefix,
       };
       s3.listObjectsV2(s3params, (err, data) => {
         if (err) {
@@ -134,17 +120,30 @@ module.exports = function(app) {
     });
   };
 
-  app.get("/state/:state", async function(req, res) {
+  app.get("/state/:state", async function (req, res) {
     var stateVal = req.params.state.toUpperCase();
+    var sess = req.session;
+    var isAdmin = false;
+    if (sess.user) {
+      var userObject = req.session.user;
+      let user = await userModel.findOne({
+        where: {
+          email: userObject.email,
+        },
+      });
+      if (user.isAdmin == 1) {
+        isAdmin = true;
+      }
+    }
     Repoman.findAll({
       raw: true,
       where: {
         state: {
-          [Sequelize.Op.substring]: stateVal
-        }
+          [Sequelize.Op.substring]: stateVal,
+        },
       },
-      order: [["Listing Level", "DESC"]]
-    }).then(async result => {
+      order: [["Listing Level", "DESC"]],
+    }).then(async (result) => {
       var url = "";
       for (var i = 0; i < result.length; i++) {
         console.log(result[i]);
@@ -162,13 +161,20 @@ module.exports = function(app) {
         var logoPath = await listDirectories(
           result[i]["Company Name"] + "/companyLogo/"
         );
-        var logoparams = { Bucket: BUCKET_NAME, Key: logoPath.Contents[0].Key };
-        var companyLogoUrl = await s3.getSignedUrl("getObject", logoparams);
-        result[i].companyLogoUrl = companyLogoUrl;
+        console.log("logoPath");
+        console.log(logoPath);
+        if (logoPath.Contents.length > 0) {
+          var logoparams = {
+            Bucket: BUCKET_NAME,
+            Key: logoPath.Contents[0].Key,
+          };
+          var companyLogoUrl = await s3.getSignedUrl("getObject", logoparams);
+          result[i].companyLogoUrl = companyLogoUrl;
+        }
 
         var mapparams = {
           Bucket: BUCKET_NAME,
-          Key: result[i]["Company Name"] + "/companyInfo/map.pdf"
+          Key: result[i]["Company Name"] + "/companyInfo/map.pdf",
         };
         var companyMapUrl = await s3.getSignedUrl("getObject", mapparams);
         result[i].companyMapUrl = companyMapUrl;
@@ -176,15 +182,16 @@ module.exports = function(app) {
       res.render("stateSearch", {
         zipData: result,
         stateVal: stateVal,
-        SideBarImagesList: SideBarImagesList
+        SideBarImagesList: SideBarImagesList,
+        isAdmin: isAdmin,
       });
     });
   });
-  app.get("/company/:id", function(req, res) {
+  app.get("/company/:id", function (req, res) {
     res.sendFile(path.join(__dirname, "../public/companyView.html"));
   });
 
-  app.get("/login", function(req, res) {
+  app.get("/login", function (req, res) {
     // If the user already has an account send them to the customer page
     console.log("USER");
     if (req.user) {
@@ -193,7 +200,7 @@ module.exports = function(app) {
     res.sendFile(path.join(__dirname, "../public/customer.html"));
   });
   //
-  app.get("/login", function(req, res) {
+  app.get("/login", function (req, res) {
     // If the user already has an account send them to the customer page
     if (req.user) {
       res.redirect("/customer");
