@@ -866,6 +866,34 @@ app.post("/update", function (req, response) {
     });
 });
 
+async function sendMail(email, subject, text) {
+  var mailOptions = {
+    from: email,
+    to: "birch.joey20@gmail.com",
+    subject: subject,
+    text: text
+  };
+
+  transporter.sendMail(mailOptions, function (error, info) {
+    if (error) {
+      console.log(error);
+    } else {
+      console.log("Email sent: " + info.response);
+    }
+  });
+};
+
+app.post('/contactUs', (res, req) => {
+  const { subject, email, text} = res.body;
+  console.log('Data: ' , res.body);
+  sendMail(email, subject, text, function(err, data){
+    if(err) {
+      res.status(500).json({ message: 'Internal Error'});
+    } else {
+      res.json({ message: 'Email sent'});
+    }
+  });
+});
 
 app.listen(80);
 
