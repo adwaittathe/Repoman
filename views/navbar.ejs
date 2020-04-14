@@ -1,0 +1,98 @@
+<nav
+  class="navbar navbar-expand-lg navbar-dark"
+  style="background-color: #850a0a;"
+>
+  <div class="container">
+    <a class="navbar-brand" href="/index">
+      <img
+        src="/assets/images/large-rm-logo.png"
+        style="width: 140px; height: 55px;"
+        alt="Repoman"
+      />
+    </a>
+    <button
+      class="navbar-toggler"
+      type="button"
+      data-toggle="collapse"
+      data-target="#navbarSupportedContent"
+      aria-controls="navbarSupportedContent"
+      aria-expanded="false"
+      aria-label="Toggle navigation"
+    >
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav mr-auto">
+        <li class="nav-item dropdown">
+          <a
+            class="nav-link dropdown-toggle text-white"
+            href="#"
+            id="navbarDropdown1"
+            role="button"
+            data-toggle="dropdown"
+            aria-haspopup="true"
+            aria-expanded="false"
+          >
+            About Us
+          </a>
+          <div class="dropdown-menu" aria-labelledby="navbarDropdown1">
+            <a class="dropdown-item" href="/aboutRepoman">About Repoman.com</a>
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-item" href="/aboutUSAWeb">About USA Web</a>
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-item" href="/sitePolicy">Site Policy</a>
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-item" href="/contactUs">Contact us</a>
+            <div class="dropdown-divider"></div>
+          </div>
+        </li>
+        <li class="nav-item dropdown">
+          <a
+            class="nav-link dropdown-toggle text-white"
+            href="#"
+            id="navbarDropdown2"
+            role="button"
+            data-toggle="dropdown"
+            aria-haspopup="true"
+            aria-expanded="false"
+          >
+            Advertising Info
+          </a>
+          <div class="dropdown-menu" aria-labelledby="navbarDropdown2">
+            <a class="dropdown-item" href="/listingOptions">Listing Options</a>
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-item" href="/insurance"
+              >Insurance Requirements</a
+            >
+          </div>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link text-white" href="/vendors">Vendors</a>
+        </li>
+        <li class="nav-item">
+          <a
+            class="nav-item navbar-brand ml-3"
+            href="http://www.dynamicmfg.com/"
+          >
+            <img src="/assets/images/dyn_navthumb.gif" alt="Dynamic" />
+          </a>
+        </li>
+      </ul>
+      <% if(login){ %>
+      <p class="nav-text text-white" style="margin-top: 15px;">
+        Welcome <%= login.firstName %>
+      </p>
+      &nbsp; &nbsp;
+      <button type="button" class="btn" id="sign-in-button">
+        <a class="nav-item nav-link text-white" href="/logout">Logout</a>
+      </button>
+      <% } else{ %>
+      <button type="button" class="btn" id="sign-in-button">
+        <a class="nav-item nav-link text-white" href="/login">Register/Login</a>
+      </button>
+      <% } %>
+    </div>
+  </div>
+</nav>

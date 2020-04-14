@@ -17,107 +17,16 @@
 
   <body>
     <!-- NavBar -->
-    <nav
-      class="navbar navbar-expand-lg navbar-dark"
-      style="background-color:#850a0a;"
-    >
-      <div class="container">
-        <a class="navbar-brand" href="/index">
-          <img
-            src="assets/images/large-rm-logo.png"
-            style="width: 140px; height:55px;"
-            alt="Repoman"
-          />
-        </a>
-        <button
-          class="navbar-toggler"
-          type="button"
-          data-toggle="collapse"
-          data-target="#navbarSupportedContent"
-          aria-controls="navbarSupportedContent"
-          aria-expanded="false"
-          aria-label="Toggle navigation"
-        >
-          <span class="navbar-toggler-icon"></span>
-        </button>
-
-        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-          <ul class="navbar-nav mr-auto">
-            <li class="nav-item dropdown">
-              <a
-                class="nav-link dropdown-toggle text-white"
-                href="#"
-                id="navbarDropdown1"
-                role="button"
-                data-toggle="dropdown"
-                aria-haspopup="true"
-                aria-expanded="false"
-              >
-                About Us
-              </a>
-              <div class="dropdown-menu" aria-labelledby="navbarDropdown1">
-                <a class="dropdown-item" href="/aboutRepoman"
-                  >About Repoman.com</a
-                >
-                <div class="dropdown-divider"></div>
-                <a class="dropdown-item" href="/aboutUSAWeb">About USA Web</a>
-                <div class="dropdown-divider"></div>
-                <a class="dropdown-item" href="/sitePolicy">Site Policy</a>
-                <div class="dropdown-divider"></div>
-                <a class="dropdown-item" href="/contactUs">Contact us</a>
-                <div class="dropdown-divider"></div>
-              </div>
-            </li>
-            <li class="nav-item dropdown">
-              <a
-                class="nav-link dropdown-toggle text-white"
-                href="#"
-                id="navbarDropdown2"
-                role="button"
-                data-toggle="dropdown"
-                aria-haspopup="true"
-                aria-expanded="false"
-              >
-                Advertising Info
-              </a>
-              <div class="dropdown-menu" aria-labelledby="navbarDropdown2">
-                <a class="dropdown-item" href="/listingOptions"
-                  >Listing Options</a
-                >
-                <div class="dropdown-divider"></div>
-                <a class="dropdown-item" href="/insurance"
-                  >Insurance Requirements</a
-                >
-              </div>
-            </li>
-
-            <li class="nav-item">
-              <a class="nav-link text-white" href="/vendors">Vendors</a>
-            </li>
-            <li class="nav-item">
-              <a
-                class="nav-item navbar-brand ml-3"
-                href="http://www.dynamicmfg.com/"
-              >
-                <img src="assets/images/dyn_navthumb.gif" alt="Dynamic" />
-              </a>
-            </li>
-          </ul>
-          <button type="button" class="btn" id="sign-in-button">
-            <a class="nav-item nav-link text-white" href="/login"
-              >Register/Login</a
-            >
-          </button>
-        </div>
-      </div>
-    </nav>
+    <div>
+      <%- include ("navbar") -%>
+    </div>
     <!--Main Content-->
     <div class="container mb-2">
       <div class="jumbotron mt-3 mb-0" id="main-search-area">
         <div class="row">
           <div class="col-sm-8">
             <div
-              class="card  shadow-lg p-3 mb-5 border-0 rounded"
+              class="card shadow-lg p-3 mb-5 border-0 rounded"
               id="main-search-card"
             >
               <div class="card-body">
@@ -273,7 +182,7 @@
         <div class="card-body">
           <div class="row">
             <div class="col-sm-4">
-              <ul style="list-style-type:none;">
+              <ul style="list-style-type: none;">
                 <li class="state-href">
                   <a href="/state/AL" class="state-link">Alabama</a>
                 </li>
@@ -328,7 +237,7 @@
               </ul>
             </div>
             <div class="col-sm-4">
-              <ul style="list-style-type:none;">
+              <ul style="list-style-type: none;">
                 <li class="state-href">
                   <a href="/state/LA" class="state-link">Louisiana</a>
                 </li>
@@ -383,7 +292,7 @@
               </ul>
             </div>
             <div class="col-sm-4">
-              <ul style="list-style-type:none;">
+              <ul style="list-style-type: none;">
                 <li class="state-href">
                   <a href="/state/OH" class="state-link">Ohio</a>
                 </li>
@@ -446,7 +355,7 @@
         <div class="row">
           <div class="col-sm-2">
             <div class="footer-div">
-              <ul class="footer-list" style="list-style-type:none">
+              <ul class="footer-list" style="list-style-type: none;">
                 <a href="/sitePolicy">
                   <li class="footer-text">Privacy Policy</li>
                 </a>
@@ -462,7 +371,7 @@
           </div>
           <div class="col-sm-2">
             <div class="footer-div">
-              <ul class="footer-list" style="list-style-type:none">
+              <ul class="footer-list" style="list-style-type: none;">
                 <a href="/payment">
                   <li class="footer-text">Payment</li>
                 </a>

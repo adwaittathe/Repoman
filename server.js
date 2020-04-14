@@ -53,6 +53,33 @@ require("./routes/apiRoutes.js")(app);
 
 //----------------------------------------------------Functions------------------------------------------------------
 
+const listDirectories = (prefix) => {
+  return new Promise((resolve, reject) => {
+    const s3params = {
+      Bucket: BUCKET_NAME,
+      Prefix: prefix,
+    };
+    s3.listObjectsV2(s3params, (err, data) => {
+      if (err) {
+        reject(err);
+      }
+      resolve(data);
+      return data;
+    });
+  });
+};
+async function test() {
+  var companyData = await companyModel.findOne({
+    where: {
+      id: 1544,
+    },
+  });
+  var string = JSON.stringify(companyData);
+  var companyINFO = JSON.parse(string);
+  console.log(companyINFO);
+}
+//test();
+
 async function sendMail(obj) {
   var mailOptions = {
     to: "adwait.tathe@gmail.com",
@@ -102,7 +129,7 @@ async function resetPasswordMail(token) {
   });
 }
 
-const uploadFile = (fileName, key) => {
+const uploadFile = async (fileName, key) => {
   const fileContent = fs.readFileSync(fileName);
   const params = {
     Bucket: BUCKET_NAME,
@@ -118,21 +145,7 @@ const uploadFile = (fileName, key) => {
     console.log(`File uploaded successfully. ${data.Location}`);
   });
 };
-const listDirectories = (prefix) => {
-  return new Promise((resolve, reject) => {
-    const s3params = {
-      Bucket: BUCKET_NAME,
-      Prefix: prefix,
-    };
-    s3.listObjectsV2(s3params, (err, data) => {
-      if (err) {
-        reject(err);
-      }
-      resolve(data);
-      return data;
-    });
-  });
-};
+
 getSideBarImages();
 var SideBarImagesList = [];
 async function getSideBarImages() {
@@ -154,7 +167,7 @@ function validation(pass1, pass2) {
   }
 }
 //----------------------------------------------------Routing------------------------------------------------------
-app.post("/zip", async function (req, response) {
+app.post("/zip", async function (req, res) {
   var url =
     "https://www.zipcodeapi.com/rest/CIkJigsGbUqnlUGDkGHrddrqhBofshJNxp1Xf3xXPGWxfFmBEruccI2tMKs7HGb6/radius.json/" +
     req.body.zipCode +
@@ -164,43 +177,72 @@ app.post("/zip", async function (req, response) {
   var urlVal = await fetch(url);
   const data = await urlVal.json();
   const zipArray = data.zip_codes;
-  var zipList = [];
-  for (var i = 0; i < zipArray.length; i++) {
-    var obj = zipArray[i];
-    zipList.push(obj.zip_code);
-  }
-  var Op = Sequelize.Op;
-  db.sync()
-    .then(function () {
-      return companyModel.findAll({
-        where: {
-          Zip: {
-            [Op.in]: zipList,
+
+  if (data && zipArray) {
+    var zipList = [];
+    for (var i = 0; i < zipArray.length; i++) {
+      var obj = zipArray[i];
+      zipList.push(obj.zip_code);
+    }
+    var Op = Sequelize.Op;
+    db.sync()
+      .then(function () {
+        return companyModel.findAll({
+          where: {
+            Zip: {
+              [Op.in]: zipList,
+            },
           },
-        },
-        order: [["Listing Level", "DESC"]],
-      });
-    })
-    .then(function (res, err) {
-      if (res) {
-        var obj = JSON.stringify(res);
-        var d = JSON.parse(obj);
-        for (var i = 0; i < d.length; i++) {
-          if (d[i].companyImg.data.length > 0) {
-            var bufferBase64 = new Buffer(
-              d[i].companyImg.data,
-              "binary"
-            ).toString("base64");
-            var url = "data:image/jpeg;base64," + bufferBase64;
-            d[i].img = url;
-          }
-        }
-        response.render("zipDisplay", {
-          zipData: d,
-          SideBarImagesList: SideBarImagesList,
+          order: [["Listing Level", "DESC"]],
         });
-      }
-    });
+      })
+      .then(async function (result, err) {
+        if (result) {
+          for (var i = 0; i < result.length; i++) {
+            var list = [];
+            if (result[i].insuranceUrl) {
+              list = result[i].insuranceUrl.split(",");
+            }
+            var insuranceurllist = [];
+            for (var k = 0; k < list.length; k++) {
+              var insuranceParam = {
+                Bucket: BUCKET_NAME,
+                Key: list[k],
+              };
+              var insuranceURL = await s3.getSignedUrl(
+                "getObject",
+                insuranceParam
+              );
+              insuranceurllist.push(insuranceURL);
+            }
+            result[i].URLList = insuranceurllist;
+            if (result[i].imageUrl != "" && result[i].imageUrl != null) {
+              var logoparams = {
+                Bucket: BUCKET_NAME,
+                Key: result[i].imageUrl,
+              };
+              var companyLogoUrl = await s3.getSignedUrl(
+                "getObject",
+                logoparams
+              );
+              result[i].companyLogoUrl = companyLogoUrl;
+            }
+
+            var mapparams = {
+              Bucket: BUCKET_NAME,
+              Key: result[i]["Company Name"] + "/companyInfo/map",
+            };
+            var companyMapUrl = await s3.getSignedUrl("getObject", mapparams);
+            result[i].companyMapUrl = companyMapUrl;
+          }
+          res.render("zipDisplay", {
+            zipData: result,
+            SideBarImagesList: SideBarImagesList,
+            login: req.session.user,
+          });
+        }
+      });
+  }
 });
 
 app.post("/upload", (req, res) => {
@@ -215,6 +257,7 @@ app.get("/addCompany", (req, res) => {
     userObj: {},
     error: "",
     SideBarImagesList: SideBarImagesList,
+    login: req.session.user,
   });
 });
 
@@ -222,7 +265,7 @@ app.post("/addCompany", (req, res) => {
   var sess = req.session;
   var obj = {};
   var path = null;
-  var filename = null;
+  var filename = "";
   new formidable.IncomingForm()
     .parse(req)
     .on("file", (name, file) => {
@@ -265,7 +308,10 @@ app.post("/addCompany", (req, res) => {
       }
     })
     .on("end", () => {
-      var url = obj.company + "/companyLogo/" + filename;
+      if (filename != "") {
+        filename = obj.company + "/companyLogo/" + filename;
+      }
+
       db.sync()
         .then(function () {
           return companyModel.create({
@@ -282,16 +328,20 @@ app.post("/addCompany", (req, res) => {
             "Listing Level": 0,
             Zip: obj.zip,
             isApproved: 0,
+            imageUrl: filename,
           });
         })
         .then(function (result, error) {
           if (result) {
-            uploadFile(path, url);
+            if (filename != "") {
+              uploadFile(path, filename);
+            }
             sendMail(obj);
             var userObject = sess.user;
             res.render("customer", {
               userObj: userObject,
               SideBarImagesList: SideBarImagesList,
+              login: req.session.user,
             });
           }
           if (error) {
@@ -304,6 +354,7 @@ app.get("/passwordReset", function (req, res) {
   res.render("passwordreset", {
     message: "",
     SideBarImagesList: SideBarImagesList,
+    login: req.session.user,
   });
 });
 
@@ -319,11 +370,13 @@ app.post("/passwordReset", async function (req, res) {
     res.render("passwordreset", {
       message: "Email is been sent with reset password instructions",
       SideBarImagesList: SideBarImagesList,
+      login: req.session.user,
     });
   } else {
     res.render("passwordreset", {
       message: "The user with this email do not exist",
       SideBarImagesList: SideBarImagesList,
+      login: req.session.user,
     });
   }
 });
@@ -339,6 +392,7 @@ app.get("/reset/:token", function (req, res) {
     email: userEmail,
     message: "",
     SideBarImagesList: SideBarImagesList,
+    login: req.session.user,
   });
 });
 
@@ -349,6 +403,7 @@ app.post("/newPassword", async function (req, res) {
       email: req.body.emailID,
       message: "Password and Confirm password should be same",
       SideBarImagesList: SideBarImagesList,
+      login: req.session.user,
     });
     return;
   }
@@ -367,6 +422,7 @@ app.post("/newPassword", async function (req, res) {
       res.render("login", {
         error: "Password updated successfully",
         SideBarImagesList: SideBarImagesList,
+        login: req.session.user,
       });
     })
     .catch((err) => {
@@ -374,27 +430,6 @@ app.post("/newPassword", async function (req, res) {
       console.log(err);
     });
 });
-
-// app.post("/updateComp", function(req, res) {
-//   var companyId = req.body.id;
-//   companyModel
-//     .findOne({
-//       raw: true,
-//       where: {
-//         id: companyId
-//       }
-//     })
-//     .then(result => {
-//       console.log("UPDATE RESULT");
-//       console.log(result);
-//       res.render("updateCompany", {
-//         userObj: result,
-//         error: "",
-//         SideBarImagesList: SideBarImagesList
-//       });
-//     });
-//   console.log(emailId);
-// });
 
 app.post("/addAdvertiseImage", (req, res) => {
   var sess = req.session;
@@ -417,15 +452,14 @@ app.post("/addAdvertiseImage", (req, res) => {
 });
 
 app.post("/addInsurance", (req, res) => {
-  console.log(req.body);
   var path = null;
   var filename = null;
   var Compname = null;
   var st = null;
+  var id = null;
   new formidable.IncomingForm()
     .parse(req)
     .on("file", (name, file) => {
-      //uploadFile(file.path);
       path = file.path;
       filename = file.name;
     })
@@ -437,11 +471,54 @@ app.post("/addInsurance", (req, res) => {
       if (name == "stateVal") {
         st = field;
       }
+      if (name == "URLList") {
+        URLList = field;
+      }
+      if (name == "id") {
+        id = field;
+      }
     })
-    .on("end", () => {
-      var url = Compname + "/insuranceImages/" + filename;
-      uploadFile(path, url);
-      res.redirect("/state/" + st);
+    .on("end", async () => {
+      console.log("FILENAME __________________________");
+      console.log(filename);
+
+      if (filename != null && filename && filename != "") {
+        console.log("COMPANY DATA");
+        var companyData = await companyModel.findOne({
+          where: {
+            id: id,
+          },
+        });
+        var string = JSON.stringify(companyData);
+
+        var companyINFO = JSON.parse(string);
+        let uploadURL = Compname + "/insuranceImg/" + filename;
+        let DBURL = Compname + "/insuranceImg/" + filename;
+        console.log(DBURL);
+        if (
+          companyINFO.insuranceUrl != null &&
+          companyINFO.insuranceUrl != ""
+        ) {
+          DBURL = companyINFO.insuranceUrl + "," + uploadURL;
+        }
+        console.log("DBURL------");
+        console.log(DBURL);
+        uploadFile(path, uploadURL);
+        companyModel
+          .update(
+            {
+              insuranceUrl: DBURL,
+            },
+            { where: { id: id } }
+          )
+          .then((result) => {
+            console.log("UPDATED");
+            res.redirect("/state/" + st);
+          })
+          .catch((err) => {});
+      } else {
+        res.redirect("/state/" + st);
+      }
     });
 });
 
@@ -468,7 +545,7 @@ app.post("/addMap", (req, res) => {
       }
     })
     .on("end", () => {
-      var url = Compname + "/companyInfo/map.pdf";
+      var url = Compname + "/companyInfo/map";
       uploadFile(path, url);
       res.redirect("/state/" + st);
     });
@@ -503,6 +580,7 @@ app.post("/login", function (req, response) {
           response.render("login", {
             error: "Please enter a valid password",
             SideBarImagesList: SideBarImagesList,
+            login: req.session.user,
           });
           return;
         } else {
@@ -524,18 +602,23 @@ app.post("/login", function (req, response) {
         response.render("login", {
           error: "Please enter a valid email",
           SideBarImagesList: SideBarImagesList,
+          login: req.session.user,
         });
       }
     });
 });
-
+app.get("/logout", function (req, res) {
+  req.session.destroy();
+  res.redirect("/");
+});
 app.get("/customer", function (req, res) {
-  console.log("IN CUSTomer page==-----------");
   if (req.session.user) {
     var obj = req.session.user;
+    console.log(obj);
     res.render("customer", {
       userObj: obj,
       SideBarImagesList: SideBarImagesList,
+      login: req.session.user,
     });
   } else {
     res.redirect("login", {
@@ -552,6 +635,7 @@ app.post("/register", async function (req, response) {
       userObj: req.body,
       error: "Password and Confirm password should be same",
       SideBarImagesList: SideBarImagesList,
+      login: req.session.user,
     });
     return;
   }
@@ -613,6 +697,7 @@ app.get("/update", function (req, response) {
         response.render("update", {
           userObj: user,
           SideBarImagesList: SideBarImagesList,
+          login: req.session.user,
         });
       }
     });
@@ -629,10 +714,12 @@ app.post("/updateComp", function (req, res) {
     .then((result) => {
       console.log("UPDATE RESULT");
       console.log(result);
+
       res.render("updateCompany", {
         userObj: result,
         error: "",
         SideBarImagesList: SideBarImagesList,
+        login: req.session.user,
       });
     });
 });
@@ -710,20 +797,21 @@ app.get("/admin", async function (req, res) {
         where: {
           isApproved: 0,
         },
-        order: [["Listing Level", "DESC"]],
+        order: [["Company Name"]],
       });
       let ApprovedList = await companyModel.findAll({
         raw: true,
         where: {
           isApproved: 1,
         },
-        order: [["Listing Level", "DESC"]],
+        order: [["Company Name"]],
       });
 
       res.render("admin", {
         newList: ToBeApprovedList,
         oldList: ApprovedList,
         SideBarImagesList: SideBarImagesList,
+        login: req.session.user,
       });
     } else {
       res.redirect("/customer");
@@ -768,6 +856,7 @@ app.post("/update", function (req, response) {
           response.render("customer", {
             userObj: obj,
             SideBarImagesList: SideBarImagesList,
+            login: req.session.user,
           });
         });
     })

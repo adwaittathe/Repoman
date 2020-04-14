@@ -7,7 +7,7 @@ var Repoman = sequelize.define(
     id: {
       type: Sequelize.INTEGER,
       primaryKey: true,
-      autoIncrement: true
+      autoIncrement: true,
     },
     State: Sequelize.STRING,
     Country: Sequelize.STRING,
@@ -19,15 +19,17 @@ var Repoman = sequelize.define(
     Address1: Sequelize.STRING,
     Address2: Sequelize.STRING,
     userId: Sequelize.INTEGER,
-    "Last Paid": Sequelize.STRING,
+    LastPaid: Sequelize.STRING,
     "Listing Level": Sequelize.STRING,
     Zip: Sequelize.STRING,
-    isApproved: Sequelize.INTEGER
+    isApproved: Sequelize.INTEGER,
+    imageUrl: Sequelize.STRING,
+    insuranceUrl: Sequelize.STRING,
   },
 
   {
     freezeTableName: true,
-    timestamps: false
+    timestamps: false,
   }
 );
 module.exports = Repoman;
