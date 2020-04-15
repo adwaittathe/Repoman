@@ -28,15 +28,29 @@
           <div class="card border-0 bg-transparent">
             <div class="card-body m-1 rounded" id="main-content-area">
               <div id="register">
-                <h3 class="text-dark text-left">Register Company</h3>
+                <h3 class="text-dark text-left">Update Company</h3>
                 <br />
 
-                <form action="/approveCompany" method="post">
+                <form
+                  action="/approveCompany"
+                  method="post"
+                  enctype="multipart/form-data"
+                >
                   <% if(error!=''){ %>
                   <div class="alert alert-danger" role="alert">
                     <%=error%>
                   </div>
-                  <%}%>
+                  <% } %>
+
+                  <div class="form-group">
+                    Update Company Logo &nbsp;&nbsp;
+                    <input
+                      id="logo"
+                      type="file"
+                      name="companyLogo"
+                      accept="image/jpeg, image/png"
+                    />
+                  </div>
 
                   <div class="form-group">
                     <label for="company">Company Name</label>
@@ -46,7 +60,7 @@
                       id="company"
                       name="company"
                       placeholder="Company"
-                      value="<%=userObj['Company Name']%>"
+                      value="<%= userObj['Company Name'] %>"
                       required
                     />
                   </div>
@@ -59,7 +73,6 @@
                       id="website"
                       value="<%=userObj.Website%>"
                       placeholder="Website"
-                      required
                     />
                   </div>
                   <div class="form-group">
@@ -71,7 +84,6 @@
                       name="address1"
                       value="<%=userObj.Address1%>"
                       placeholder="1234 Main St"
-                      required
                     />
                   </div>
                   <div class="form-group">
@@ -82,7 +94,6 @@
                       name="address2"
                       value="<%=userObj.Address2%>"
                       placeholder="Apartment, studio, or floor"
-                      required
                     />
                   </div>
 

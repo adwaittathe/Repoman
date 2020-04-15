@@ -80,7 +80,8 @@ async function test() {
 }
 //test();
 
-async function sendMail(obj) {
+function sendMail(obj) {
+  console.log("IN MAIL");
   var mailOptions = {
     to: "adwait.tathe@gmail.com",
     subject: `New Company with name ${obj.company} is registered`,
@@ -321,7 +322,7 @@ app.post("/addCompany", (req, res) => {
             "Phone Number": obj.phoneNo,
             Address1: obj.address1,
             Address2: obj.address2,
-            userId: sess.userId,
+            userId: sess.email,
             Website: obj.website,
             Description: obj.companyDesc,
             "Fax Number": obj.faxNo,
@@ -336,6 +337,8 @@ app.post("/addCompany", (req, res) => {
             if (filename != "") {
               uploadFile(path, filename);
             }
+            console.log("OBJ____________");
+            console.log(obj);
             sendMail(obj);
             var userObject = sess.user;
             res.render("customer", {
@@ -479,9 +482,6 @@ app.post("/addInsurance", (req, res) => {
       }
     })
     .on("end", async () => {
-      console.log("FILENAME __________________________");
-      console.log(filename);
-
       if (filename != null && filename && filename != "") {
         console.log("COMPANY DATA");
         var companyData = await companyModel.findOne({
@@ -494,15 +494,12 @@ app.post("/addInsurance", (req, res) => {
         var companyINFO = JSON.parse(string);
         let uploadURL = Compname + "/insuranceImg/" + filename;
         let DBURL = Compname + "/insuranceImg/" + filename;
-        console.log(DBURL);
         if (
           companyINFO.insuranceUrl != null &&
           companyINFO.insuranceUrl != ""
         ) {
-          DBURL = companyINFO.insuranceUrl + "," + uploadURL;
+          DBURL = companyINFO.insuranceUrl + "||" + uploadURL;
         }
-        console.log("DBURL------");
-        console.log(DBURL);
         uploadFile(path, uploadURL);
         companyModel
           .update(
@@ -564,7 +561,6 @@ app.post("/login", function (req, response) {
     })
     .then(async function (res, err) {
       if (res) {
-        console.log(res);
         var user = new userModel({
           id: res.id,
           firstName: res.firstName,
@@ -594,7 +590,6 @@ app.post("/login", function (req, response) {
             email: res.email,
             isAdmin: res.isAdmin,
           };
-
           sess.user = obj;
           response.redirect("/customer");
         }
@@ -614,17 +609,13 @@ app.get("/logout", function (req, res) {
 app.get("/customer", function (req, res) {
   if (req.session.user) {
     var obj = req.session.user;
-    console.log(obj);
     res.render("customer", {
       userObj: obj,
       SideBarImagesList: SideBarImagesList,
       login: req.session.user,
     });
   } else {
-    res.redirect("login", {
-      error: "Please login to continue",
-      SideBarImagesList: SideBarImagesList,
-    });
+    res.redirect("/login");
   }
 });
 
@@ -669,7 +660,7 @@ app.post("/register", async function (req, response) {
           isAdmin: 0,
         };
         sess.user = obj;
-        response.redirect("customer");
+        response.redirect("/customer");
       }
     });
 });
@@ -712,9 +703,6 @@ app.post("/updateComp", function (req, res) {
       },
     })
     .then((result) => {
-      console.log("UPDATE RESULT");
-      console.log(result);
-
       res.render("updateCompany", {
         userObj: result,
         error: "",
@@ -725,61 +713,131 @@ app.post("/updateComp", function (req, res) {
 });
 
 app.post("/approveCompany", function (req, res) {
-  console.log(req.body);
-  if (req.body.approve) {
-    companyModel
-      .update(
-        {
-          State: req.body.state,
-          "Company Name": req.body.company,
-          "Phone Number": req.body.phoneNo,
-          Address1: req.body.address1,
-          Address2: req.body.address2,
-          Zip: req.body.zip,
-          State: req.body.state,
-          Country: req.body.country,
-          Website: req.body.website,
-          "Fax Number": req.body.faxNo,
-          Description: req.body.companyDesc,
-          isApproved: 1,
-        },
-        { where: { id: req.body.companyId } }
-      )
-      .then((result) => {
-        console.log(result);
-        res.redirect("admin");
-      })
-      .catch((err) => {
-        console.log("update failed");
-        console.log(err);
-      });
-  } else {
-    companyModel
-      .update(
-        {
-          State: req.body.state,
-          "Company Name": req.body.company,
-          "Phone Number": req.body.phoneNo,
-          Address1: req.body.address1,
-          Address2: req.body.address2,
-          Zip: req.body.zip,
-          State: req.body.state,
-          Country: req.body.country,
-          Website: req.body.website,
-          "Fax Number": req.body.faxNo,
-          Description: req.body.companyDesc,
-        },
-        { where: { id: req.body.companyId } }
-      )
-      .then((result) => {
-        console.log(result);
-        res.redirect("admin");
-      })
-      .catch((err) => {
-        console.log("update failed");
-        console.log(err);
-      });
-  }
+  var sess = req.session;
+  var obj = {};
+  var path = null;
+  var filename = "";
+  var approved = 0;
+  new formidable.IncomingForm()
+    .parse(req)
+    .on("file", (name, file) => {
+      path = file.path;
+      filename = file.name;
+    })
+    .on("field", (name, field) => {
+      //console.log(name, field);
+      switch (name) {
+        case "state":
+          obj.state = field;
+          break;
+        case "country":
+          obj.country = field;
+          break;
+        case "company":
+          obj.company = field;
+          break;
+        case "phoneNo":
+          obj.phoneNo = field;
+          break;
+        case "address1":
+          obj.address1 = field;
+          break;
+        case "address2":
+          obj.address2 = field;
+          break;
+        case "website":
+          obj.website = field;
+          break;
+        case "companyDesc":
+          obj.companyDesc = field;
+          break;
+        case "faxNo":
+          obj.faxNo = field;
+          break;
+        case "zip":
+          obj.zip = field;
+          break;
+        case "companyId":
+          obj.companyId = field;
+          break;
+        case "imageUrl":
+          obj.imageUrl = field;
+          break;
+        case "approve":
+          approved = 1;
+          break;
+      }
+    })
+    .on("end", () => {
+      if (filename != "") {
+        filename = obj.company + "/companyLogo/" + filename;
+      } else {
+        filename = obj.imageUrl;
+      }
+
+      console.log(obj);
+      console.log(filename);
+      if (approved == 1) {
+        companyModel
+          .update(
+            {
+              State: obj.state,
+              Country: obj.country,
+              "Company Name": obj.company,
+              "Phone Number": obj.phoneNo,
+              Address1: obj.address1,
+              Address2: obj.address2,
+              Website: obj.website,
+              Description: obj.companyDesc,
+              "Fax Number": obj.faxNo,
+              "Listing Level": 0,
+              Zip: obj.zip,
+              imageUrl: filename,
+              isApproved: 1,
+            },
+            { where: { id: obj.companyId } }
+          )
+          .then((result) => {
+            if (filename != "") {
+              uploadFile(path, filename);
+            }
+            res.redirect("/admin");
+          })
+          .catch((err) => {
+            console.log("update failed");
+            console.log(err);
+          });
+      } else {
+        companyModel
+          .update(
+            {
+              State: obj.state,
+              Country: obj.country,
+              "Company Name": obj.company,
+              "Phone Number": obj.phoneNo,
+              Address1: obj.address1,
+              Address2: obj.address2,
+              Website: obj.website,
+              Description: obj.companyDesc,
+              "Fax Number": obj.faxNo,
+              "Listing Level": 0,
+              Zip: obj.zip,
+              imageUrl: filename,
+            },
+            { where: { id: obj.companyId } }
+          )
+          .then((result) => {
+            if (filename != "") {
+              uploadFile(path, filename);
+            }
+            res.redirect("/admin");
+          })
+          .catch((err) => {
+            console.log("update failed");
+            console.log(err);
+          });
+      }
+    });
 });
 
 app.get("/admin", async function (req, res) {
@@ -871,7 +929,7 @@ async function sendMail(email, subject, text) {
     from: email,
     to: "birch.joey20@gmail.com",
     subject: subject,
-    text: text
+    text: text,
   };
 
   transporter.sendMail(mailOptions, function (error, info) {
@@ -881,16 +939,16 @@ async function sendMail(email, subject, text) {
       console.log("Email sent: " + info.response);
     }
   });
-};
+}
 
-app.post('/contactUs', (res, req) => {
-  const { subject, email, text} = res.body;
-  console.log('Data: ' , res.body);
-  sendMail(email, subject, text, function(err, data){
-    if(err) {
-      res.status(500).json({ message: 'Internal Error'});
+app.post("/contactUs", (res, req) => {
+  const { subject, email, text } = res.body;
+  console.log("Data: ", res.body);
+  sendMail(email, subject, text, function (err, data) {
+    if (err) {
+      res.status(500).json({ message: "Internal Error" });
     } else {
-      res.json({ message: 'Email sent'});
+      res.json({ message: "Email sent" });
     }
   });
 });

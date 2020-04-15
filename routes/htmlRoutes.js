@@ -49,18 +49,15 @@ module.exports = function (app) {
       SideBarImagesList: SideBarImagesList,
       login: req.session.user,
     });
-    //res.sendFile(path.join(__dirname, "../public/index.html"));
   });
   app.get("/index", async function (req, res) {
     await getSideBarImages();
-    //res.sendFile(path.join(__dirname, "../public/index.html"));
     res.render("index", {
       SideBarImagesList: SideBarImagesList,
       login: req.session.user,
     });
   });
   app.get("/aboutRepoman", function (req, res) {
-    //res.sendFile(path.join(__dirname, "../public/aboutRepoman.html"));
     res.render("aboutRepoman", {
       SideBarImagesList: SideBarImagesList,
       login: req.session.user,
@@ -68,56 +65,48 @@ module.exports = function (app) {
   });
 
   app.get("/aboutUSAWeb", function (req, res) {
-    //res.sendFile(path.join(__dirname, "../public/aboutUSAWeb.html"));
     res.render("aboutUSAWeb", {
       SideBarImagesList: SideBarImagesList,
       login: req.session.user,
     });
   });
   app.get("/contactUs", function (req, res) {
-    //res.sendFile(path.join(__dirname, "../public/contactUs.html"));
     res.render("contactUs", {
       SideBarImagesList: SideBarImagesList,
       login: req.session.user,
     });
   });
   app.get("/directory", function (req, res) {
-    //res.sendFile(path.join(__dirname, "../public/directory.html"));
     res.render("index", {
       SideBarImagesList: SideBarImagesList,
       login: req.session.user,
     });
   });
   app.get("/insurance", function (req, res) {
-    //res.sendFile(path.join(__dirname, "../public/insurance.html"));
     res.render("insurance", {
       SideBarImagesList: SideBarImagesList,
       login: req.session.user,
     });
   });
   app.get("/listingOptions", function (req, res) {
-    //res.sendFile(path.join(__dirname, "../public/listingOptions.html"));
     res.render("listingOptions", {
       SideBarImagesList: SideBarImagesList,
       login: req.session.user,
     });
   });
   app.get("/sitePolicy", function (req, res) {
-    //res.sendFile(path.join(__dirname, "../public/sitePolicy.html"));
     res.render("sitePolicy", {
       SideBarImagesList: SideBarImagesList,
       login: req.session.user,
     });
   });
   app.get("/refund", function (req, res) {
-    //res.sendFile(path.join(__dirname, "../public/refund.html"));
     res.render("refund", {
       SideBarImagesList: SideBarImagesList,
       login: req.session.user,
     });
   });
   app.get("/vendors", function (req, res) {
-    //res.sendFile(path.join(__dirname, "../public/vendors.html"));
     res.render("vendors", {
       SideBarImagesList: SideBarImagesList,
       login: req.session.user,
@@ -130,10 +119,8 @@ module.exports = function (app) {
       SideBarImagesList: SideBarImagesList,
       login: req.session.user,
     });
-    //res.sendFile(path.join(__dirname, "../public/login.html"))
   });
   app.get("/register", function (req, res) {
-    //res.sendFile(path.join(__dirname, "../public/register.html"));
     res.render("register", {
       userObj: {},
       error: "",
@@ -142,21 +129,21 @@ module.exports = function (app) {
     });
   });
 
-  const listDirectories = (prefix) => {
-    return new Promise((resolve, reject) => {
-      const s3params = {
-        Bucket: BUCKET_NAME,
-        Prefix: prefix,
-      };
-      s3.listObjectsV2(s3params, (err, data) => {
-        if (err) {
-          reject(err);
-        }
-        resolve(data);
-        return data;
-      });
-    });
-  };
+  // const listDirectories = (prefix) => {
+  //   return new Promise((resolve, reject) => {
+  //     const s3params = {
+  //       Bucket: BUCKET_NAME,
+  //       Prefix: prefix,
+  //     };
+  //     s3.listObjectsV2(s3params, (err, data) => {
+  //       if (err) {
+  //         reject(err);
+  //       }
+  //       resolve(data);
+  //       return data;
+  //     });
+  //   });
+  // };
 
   app.get("/state/:state", async function (req, res) {
     var stateVal = req.params.state.toUpperCase();
@@ -176,17 +163,16 @@ module.exports = function (app) {
     Repoman.findAll({
       raw: true,
       where: {
-        // state: {
-        //   [Sequelize.Op.substring]: stateVal,
-        // },
-        isApproved: 0,
+        state: {
+          [Sequelize.Op.substring]: stateVal,
+        },
       },
       order: [["Listing Level", "DESC"]],
     }).then(async (result) => {
       for (var i = 0; i < result.length; i++) {
         var list = [];
         if (result[i].insuranceUrl) {
-          list = result[i].insuranceUrl.split(",");
+          list = result[i].insuranceUrl.split("||");
         }
         var insuranceurllist = [];
         for (var k = 0; k < list.length; k++) {
@@ -226,21 +212,4 @@ module.exports = function (app) {
   app.get("/company/:id", function (req, res) {
     res.sendFile(path.join(__dirname, "../public/companyView.html"));
   });
-
-  // app.get("/login", function (req, res) {
-  //   // If the user already has an account send them to the customer page
-  //   console.log("USER");
-  //   if (req.user) {
-  //     res.redirect("/customer");
-  //   }
-  //   res.sendFile(path.join(__dirname, "../public/customer.html"));
-  // });
-  // //
-  // app.get("/login", function (req, res) {
-  //   // If the user already has an account send them to the customer page
-  //   if (req.user) {
-  //     res.redirect("/customer");
-  //   }
-  //   res.sendFile(path.join(__dirname, "../public/customer.html"));
-  // });
 };

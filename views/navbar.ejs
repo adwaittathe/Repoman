@@ -81,9 +81,12 @@
         </li>
       </ul>
       <% if(login){ %>
-      <p class="nav-text text-white" style="margin-top: 15px;">
+      <a href="/customer" class="text-white">
         Welcome <%= login.firstName %>
-      </p>
+      </a>
+      <!-- <p class="nav-text text-white" style="margin-top: 15px;">
+        Welcome <%= login.firstName %>
+      </p> -->
       &nbsp; &nbsp;
       <button type="button" class="btn" id="sign-in-button">
         <a class="nav-item nav-link text-white" href="/logout">Logout</a>

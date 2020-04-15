@@ -2,6 +2,7 @@ var Sequelize = require("sequelize");
 
 var sequelize = new Sequelize("repoman", "testuser", "Password@123", {
   host: "ec2-54-164-203-146.compute-1.amazonaws.com",
+  region: "us-east-1",
   port: 3306,
   dialect: "mysql",
   logging: console.log,
