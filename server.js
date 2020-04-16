@@ -76,25 +76,24 @@ async function test() {
   });
   var string = JSON.stringify(companyData);
   var companyINFO = JSON.parse(string);
-  console.log(companyINFO);
 }
 //test();
 
-function sendMail(obj) {
-  console.log("IN MAIL");
+function sendMailAfterRegistration(obj) {
   var mailOptions = {
     to: "adwait.tathe@gmail.com",
     subject: `New Company with name ${obj.company} is registered`,
-    text: `Hi, 
-    Hope you are having a good day! 
-    New company is registered in Repoman 
-    Please find the details below \n
-    Name : ${obj.company} 
-    State : ${obj.state}
-    Phone Number : ${obj.phoneNo}
-    Website : ${obj.website} \n
-    Thank You
-    Repoman Team`,
+    text: `
+  Hi, 
+  Hope you are having a good day! 
+  New company is registered in Repoman 
+  Please find the details below \n
+  Name : ${obj.company} 
+  State : ${obj.state}
+  Phone Number : ${obj.phoneNo}
+  Website : ${obj.website} \n
+  Thank You
+  Repoman Team`,
   };
 
   transporter.sendMail(mailOptions, function (error, info) {
@@ -106,9 +105,9 @@ function sendMail(obj) {
   });
 }
 
-async function resetPasswordMail(token) {
+async function resetPasswordMail(token, email) {
   var mailOptions = {
-    to: "adwait.tathe@gmail.com",
+    to: email,
     subject: `Reset Password`,
     text:
       "You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n" +
@@ -168,6 +167,10 @@ function validation(pass1, pass2) {
   }
 }
 //----------------------------------------------------Routing------------------------------------------------------
+
+app.get("/zip", function (req, res) {
+  res.redirect("/");
+});
 app.post("/zip", async function (req, res) {
   var url =
     "https://www.zipcodeapi.com/rest/CIkJigsGbUqnlUGDkGHrddrqhBofshJNxp1Xf3xXPGWxfFmBEruccI2tMKs7HGb6/radius.json/" +
@@ -253,13 +256,16 @@ app.post("/upload", (req, res) => {
 });
 
 app.get("/addCompany", (req, res) => {
-  var sess = req.session;
-  res.render("addCompany", {
-    userObj: {},
-    error: "",
-    SideBarImagesList: SideBarImagesList,
-    login: req.session.user,
-  });
+  if (req.session.user) {
+    res.render("addCompany", {
+      userObj: {},
+      error: "",
+      SideBarImagesList: SideBarImagesList,
+      login: req.session.user,
+    });
+  } else {
+    res.redirect("/login");
+  }
 });
 
 app.post("/addCompany", (req, res) => {
@@ -337,9 +343,7 @@ app.post("/addCompany", (req, res) => {
             if (filename != "") {
               uploadFile(path, filename);
             }
-            console.log("OBJ____________");
-            console.log(obj);
-            sendMail(obj);
+            sendMailAfterRegistration(obj);
             var userObject = sess.user;
             res.render("customer", {
               userObj: userObject,
@@ -369,7 +373,7 @@ app.post("/passwordReset", async function (req, res) {
   });
   if (user) {
     const token = jwt.sign({ _email: req.body.email }, process.env.TOKEN_KEY);
-    await resetPasswordMail(token);
+    await resetPasswordMail(token, req.body.email);
     res.render("passwordreset", {
       message: "Email is been sent with reset password instructions",
       SideBarImagesList: SideBarImagesList,
@@ -385,11 +389,8 @@ app.post("/passwordReset", async function (req, res) {
 });
 
 app.get("/reset/:token", function (req, res) {
-  console.log("IN RESET");
   const token = req.params.token;
-  console.log(token);
   const tokendata = jwt.verify(token, process.env.TOKEN_KEY);
-  console.log("VERIFIED TOKEN");
   const userEmail = tokendata._email;
   res.render("newPassword", {
     email: userEmail,
@@ -400,7 +401,6 @@ app.get("/reset/:token", function (req, res) {
 });
 
 app.post("/newPassword", async function (req, res) {
-  console.log(req.body);
   if (!validation(req.body.newPassword, req.body.confirmPassword)) {
     res.render("newPassword", {
       email: req.body.emailID,
@@ -444,9 +444,7 @@ app.post("/addAdvertiseImage", (req, res) => {
       path = file.path;
       filename = file.name;
     })
-    .on("field", (name, field) => {
-      console.log(name, field);
-    })
+    .on("field", (name, field) => {})
     .on("end", () => {
       var url = "Side Bar Images/" + filename;
       uploadFile(path, url);
@@ -467,7 +465,6 @@ app.post("/addInsurance", (req, res) => {
       filename = file.name;
     })
     .on("field", (name, field) => {
-      console.log(name, field);
       if (name == "name") {
         Compname = field;
       }
@@ -483,7 +480,6 @@ app.post("/addInsurance", (req, res) => {
     })
     .on("end", async () => {
       if (filename != null && filename && filename != "") {
-        console.log("COMPANY DATA");
         var companyData = await companyModel.findOne({
           where: {
             id: id,
@@ -509,7 +505,6 @@ app.post("/addInsurance", (req, res) => {
             { where: { id: id } }
           )
           .then((result) => {
-            console.log("UPDATED");
             res.redirect("/state/" + st);
           })
           .catch((err) => {});
@@ -520,7 +515,6 @@ app.post("/addInsurance", (req, res) => {
 });
 
 app.post("/addMap", (req, res) => {
-  console.log(req.body);
   var path = null;
   var filename = null;
   var Compname = null;
@@ -533,7 +527,6 @@ app.post("/addMap", (req, res) => {
       filename = file.name;
     })
     .on("field", (name, field) => {
-      console.log(name, field);
       if (name == "name") {
         Compname = field;
       }
@@ -543,6 +536,32 @@ app.post("/addMap", (req, res) => {
     })
     .on("end", () => {
       var url = Compname + "/companyInfo/map";
+      uploadFile(path, url);
+      res.redirect("/state/" + st);
+    });
+});
+
+app.post("/addInformationPacket", (req, res) => {
+  var path = null;
+  var filename = null;
+  var Compname = null;
+  var st = null;
+  new formidable.IncomingForm()
+    .parse(req)
+    .on("file", (name, file) => {
+      path = file.path;
+      filename = file.name;
+    })
+    .on("field", (name, field) => {
+      if (name == "name") {
+        Compname = field;
+      }
+      if (name == "stateVal") {
+        st = field;
+      }
+    })
+    .on("end", () => {
+      var url = Compname + "/companyInfo/InformationPacket";
       uploadFile(path, url);
       res.redirect("/state/" + st);
     });
@@ -667,34 +686,82 @@ app.post("/register", async function (req, response) {
 
 app.get("/update", function (req, response) {
   var sess = req.session;
-  db.sync()
-    .then(function () {
-      return userModel.findOne({
-        where: {
-          email: sess.email,
-        },
-      });
-    })
-    .then(function (res, err) {
-      if (res) {
-        var user = new userModel({
-          id: res.id,
-          firstName: res.firstName,
-          lastName: res.lastName,
-          email: res.email,
-          password: res.password,
-          company: res.company,
+  if (req.session.user) {
+    db.sync()
+      .then(function () {
+        return userModel.findOne({
+          where: {
+            email: sess.email,
+          },
         });
-        response.render("update", {
-          userObj: user,
+      })
+      .then(function (res, err) {
+        if (res) {
+          var user = new userModel({
+            id: res.id,
+            firstName: res.firstName,
+            lastName: res.lastName,
+            email: res.email,
+            password: res.password,
+            company: res.company,
+          });
+          response.render("update", {
+            userObj: user,
+            SideBarImagesList: SideBarImagesList,
+            login: req.session.user,
+          });
+        }
+      });
+  } else {
+    response.redirect("/login");
+  }
+});
+
+app.get("/company/:id", function (req, res) {
+  if (req.session.user) {
+    var companyId = req.params.id;
+    companyModel
+      .findOne({
+        raw: true,
+        where: {
+          id: companyId,
+        },
+      })
+      .then((result) => {
+        res.render("updateCompany", {
+          userObj: result,
+          error: "",
           SideBarImagesList: SideBarImagesList,
           login: req.session.user,
         });
-      }
-    });
+      });
+  } else {
+    res.redirect("/login");
+  }
 });
-app.post("/updateComp", function (req, res) {
-  var companyId = req.body.id;
+
+// app.post("/updateComp", function (req, res) {
+//   var companyId = req.body.id;
+//   companyModel
+//     .findOne({
+//       raw: true,
+//       where: {
+//         id: companyId,
+//       },
+//     })
+//     .then((result) => {
+//       res.render("updateCompany", {
+//         userObj: result,
+//         error: "",
+//         SideBarImagesList: SideBarImagesList,
+//         login: req.session.user,
+//       });
+//     });
+// });
+
+app.post("/deleteCompany", function (req, res) {
+  var companyId = req.body.companyId;
+  console.log(companyId);
   companyModel
     .findOne({
       raw: true,
@@ -703,13 +770,45 @@ app.post("/updateComp", function (req, res) {
       },
     })
     .then((result) => {
-      res.render("updateCompany", {
-        userObj: result,
-        error: "",
-        SideBarImagesList: SideBarImagesList,
-        login: req.session.user,
-      });
+      result.destroy();
+      res.redirect("/admin");
     });
+});
+
+app.get("/delete/:id", async function (req, res) {
+  if (req.session.user) {
+    var companyId = req.params.id;
+    var userObject = req.session.user;
+    let user = await userModel.findOne({
+      where: {
+        email: userObject.email,
+      },
+    });
+    if (user.isAdmin == 1) {
+      companyModel
+        .destroy({
+          where: {
+            id: companyId, //this will be your id that you want to delete
+          },
+        })
+        .then(
+          function (rowDeleted) {
+            // rowDeleted will return number of rows deleted
+            if (rowDeleted === 1) {
+              console.log("Deleted successfully");
+              res.redirect("/admin");
+            }
+          },
+          function (err) {
+            console.log(err);
+          }
+        );
+    } else {
+      res.redirect("/customer");
+    }
+  } else {
+    res.redirect("/login");
+  }
 });
 
 app.post("/approveCompany", function (req, res) {
@@ -766,6 +865,12 @@ app.post("/approveCompany", function (req, res) {
         case "approve":
           approved = 1;
           break;
+        case "lastPaid":
+          obj.lastPaid = field;
+          break;
+        case "listingLevel":
+          obj.listingLevel = field;
+          break;
       }
     })
     .on("end", () => {
@@ -774,9 +879,6 @@ app.post("/approveCompany", function (req, res) {
       } else {
         filename = obj.imageUrl;
       }
-
-      console.log(obj);
-      console.log(filename);
       if (approved == 1) {
         companyModel
           .update(
@@ -794,6 +896,8 @@ app.post("/approveCompany", function (req, res) {
               Zip: obj.zip,
               imageUrl: filename,
               isApproved: 1,
+              LastPaid: obj.lastPaid,
+              "Listing Level": obj.listingLevel,
             },
             { where: { id: obj.companyId } }
           )
@@ -820,14 +924,15 @@ app.post("/approveCompany", function (req, res) {
               Website: obj.website,
               Description: obj.companyDesc,
               "Fax Number": obj.faxNo,
-              "Listing Level": 0,
               Zip: obj.zip,
               imageUrl: filename,
+              LastPaid: obj.lastPaid,
+              "Listing Level": obj.listingLevel,
             },
             { where: { id: obj.companyId } }
           )
           .then((result) => {
-            if (filename != "") {
+            if (filename != "" && filename != obj.imageUrl) {
               uploadFile(path, filename);
             }
             res.redirect("/admin");
@@ -943,7 +1048,6 @@ async function sendMail(email, subject, text) {
 
 app.post("/contactUs", (res, req) => {
   const { subject, email, text } = res.body;
-  console.log("Data: ", res.body);
   sendMail(email, subject, text, function (err, data) {
     if (err) {
       res.status(500).json({ message: "Internal Error" });

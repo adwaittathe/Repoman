@@ -25,17 +25,22 @@
       <div class="row">
         <!-- Content  -->
         <div class="col">
-          <% for (var i=0; i< zipData.length; i++) { %>
+          <% for (var i=0; i< zipData.length; i++) { var color=""
+          if(zipData[i]['Listing Level'] == "0") { color = "transparent"; } else
+          if(zipData[i]['Listing Level'] == "Basic") { color = "#D3D3D3"; } else
+          if(zipData[i]['Listing Level'] == "Basic Insured") { color =
+          "#D3D3D3"; } else if(zipData[i]['Listing Level'] == "Enhanced") {
+          color = "firebrick"; } else if(zipData[i]['Listing Level'] ==
+          "Enhanced with multi media") { color = "red"; } %>
 
           <div class="card">
-            <a
-              href="/company/<%=zipData[i]['id'] %>"
+            <div
               id="company"
               class="card-header"
+              style="background-color: <%= color %>;"
             >
               <b> <%= zipData[i]['Company Name'] %> </b>
-            </a>
-
+            </div>
             <div class="card-body">
               <div class="row">
                 <div class="col-sm-8">

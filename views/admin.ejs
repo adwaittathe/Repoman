@@ -42,7 +42,10 @@
               <td><%= newList[i]["Company Name"] %></td>
               <td><%= newList[i]["State"] %></td>
               <td><%= newList[i]["Zip"] %></td>
-              <form id="form" method="POST" action="/updateComp">
+              <td>
+                <a href="/company/<%= newList[i]['id'] %>">View</a>
+              </td>
+              <!-- <form id="form" method="POST" action="/updateComp">
                 <td>
                   <input
                     type="hidden"
@@ -51,7 +54,7 @@
                   />
                   <button type="submit" class="btn-primary">View</button>
                 </td>
-              </form>
+              </form> -->
             </tr>
 
             <% } %>

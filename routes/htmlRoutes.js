@@ -129,22 +129,6 @@ module.exports = function (app) {
     });
   });
 
-  // const listDirectories = (prefix) => {
-  //   return new Promise((resolve, reject) => {
-  //     const s3params = {
-  //       Bucket: BUCKET_NAME,
-  //       Prefix: prefix,
-  //     };
-  //     s3.listObjectsV2(s3params, (err, data) => {
-  //       if (err) {
-  //         reject(err);
-  //       }
-  //       resolve(data);
-  //       return data;
-  //     });
-  //   });
-  // };
-
   app.get("/state/:state", async function (req, res) {
     var stateVal = req.params.state.toUpperCase();
     var sess = req.session;
@@ -199,6 +183,16 @@ module.exports = function (app) {
         };
         var companyMapUrl = await s3.getSignedUrl("getObject", mapparams);
         result[i].companyMapUrl = companyMapUrl;
+
+        var Informationparams = {
+          Bucket: BUCKET_NAME,
+          Key: result[i]["Company Name"] + "/companyInfo/InformationPacket",
+        };
+        var InfoPacketUrl = await s3.getSignedUrl(
+          "getObject",
+          Informationparams
+        );
+        result[i].InfoPacketUr = InfoPacketUrl;
       }
       res.render("stateSearch", {
         zipData: result,
@@ -209,7 +203,7 @@ module.exports = function (app) {
       });
     });
   });
-  app.get("/company/:id", function (req, res) {
-    res.sendFile(path.join(__dirname, "../public/companyView.html"));
-  });
+  // app.get("/company/:id", function (req, res) {
+  //   res.sendFile(path.join(__dirname, "../public/companyView.html"));
+  // });
 };
