@@ -205,7 +205,7 @@ app.post("/zip", async function (req, res) {
           for (var i = 0; i < result.length; i++) {
             var list = [];
             if (result[i].insuranceUrl) {
-              list = result[i].insuranceUrl.split(",");
+              list = result[i].insuranceUrl.split("||");
             }
             var insuranceurllist = [];
             for (var k = 0; k < list.length; k++) {
@@ -238,6 +238,16 @@ app.post("/zip", async function (req, res) {
             };
             var companyMapUrl = await s3.getSignedUrl("getObject", mapparams);
             result[i].companyMapUrl = companyMapUrl;
+            var Informationparams = {
+              Bucket: BUCKET_NAME,
+              Key: result[i]["Company Name"] + "/companyInfo/InformationPacket",
+            };
+            var InfoPacketUrl = await s3.getSignedUrl(
+              "getObject",
+              Informationparams
+            );
+            result[i].InfoPacketUr = InfoPacketUrl;
+            console.log(InfoPacketUrl);
           }
           res.render("zipDisplay", {
             zipData: result,

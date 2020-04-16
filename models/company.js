@@ -25,6 +25,7 @@ var Repoman = sequelize.define(
     isApproved: Sequelize.INTEGER,
     imageUrl: Sequelize.STRING,
     insuranceUrl: Sequelize.STRING,
+    isInsured: Sequelize.INTEGER,
   },
 
   {
