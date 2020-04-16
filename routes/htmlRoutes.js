@@ -193,7 +193,6 @@ module.exports = function (app) {
           Informationparams
         );
         result[i].InfoPacketUr = InfoPacketUrl;
-        console.log(result[i]);
       }
 
       res.render("stateSearch", {
