@@ -150,6 +150,7 @@ module.exports = function (app) {
         state: {
           [Sequelize.Op.substring]: stateVal,
         },
+        isApproved: 1,
       },
       order: [["Listing Level", "DESC"]],
     }).then(async (result) => {
