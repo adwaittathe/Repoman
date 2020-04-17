@@ -9,7 +9,7 @@ var Sequelize = require("sequelize");
 var app = express();
 const formidable = require("formidable");
 var flash = require("connect-flash");
-var port = process.env.PORT || 8080;
+var port = process.env.PORT || 80;
 const multer = require("multer");
 const fetch = require("node-fetch");
 const bcrypt = require("bcryptjs");
@@ -1073,7 +1073,7 @@ app.post("/contactUs", (res, req) => {
   });
 });
 
-app.listen(80);
+//app.listen(80);
 
 app.listen(port, function () {
   console.log("App listening on PORT: " + port);
