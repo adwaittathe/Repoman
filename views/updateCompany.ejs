@@ -268,6 +268,32 @@
                       "<%=userObj['Listing Level']%>"
                     );
                   </script>
+                  <div class="form-group">
+                    <label for="isInsured">Company Insured</label>
+                    <select
+                      class="form-control"
+                      id="isInsured"
+                      name="isInsured"
+                    >
+                      <option value="0">No</option>
+                      <option value="1">Yes</option>
+                    </select>
+                  </div>
+                  <script>
+                    function setInsured(s, v) {
+                      for (var i = 0; i < s.options.length; i++) {
+                        if (s.options[i].value == v) {
+                          s.options[i].selected = true;
+                          return;
+                        }
+                      }
+                    }
+                    setInsured(
+                      document.getElementById("isInsured"),
+                      "<%=userObj['isInsured']%>"
+                    );
+                  </script>
+
                   <input
                     type="hidden"
                     name="companyId"

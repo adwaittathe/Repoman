@@ -881,6 +881,9 @@ app.post("/approveCompany", function (req, res) {
         case "listingLevel":
           obj.listingLevel = field;
           break;
+        case "isInsured":
+          obj.isInsured = field;
+          break;
       }
     })
     .on("end", () => {
@@ -889,6 +892,7 @@ app.post("/approveCompany", function (req, res) {
       } else {
         filename = obj.imageUrl;
       }
+      console.log(obj);
       if (approved == 1) {
         companyModel
           .update(
@@ -908,6 +912,7 @@ app.post("/approveCompany", function (req, res) {
               isApproved: 1,
               LastPaid: obj.lastPaid,
               "Listing Level": obj.listingLevel,
+              isInsured: obj.isInsured,
             },
             { where: { id: obj.companyId } }
           )
@@ -938,6 +943,7 @@ app.post("/approveCompany", function (req, res) {
               imageUrl: filename,
               LastPaid: obj.lastPaid,
               "Listing Level": obj.listingLevel,
+              isInsured: obj.isInsured,
             },
             { where: { id: obj.companyId } }
           )
